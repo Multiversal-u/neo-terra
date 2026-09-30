@@ -84,23 +84,30 @@ export default function EndGamePage({ params }: { params: { gameId: string } }) 
     return () => clearInterval(interval);
   }, [backendUrl, gameId]);
 
-  // Lista de empresas ordenadas por puntuación global
+  const calculateScore = (comp: any) => {
+    if (comp.compositeScore !== undefined && comp.compositeScore !== null) {
+      return comp.compositeScore;
+    }
+    const capital = comp.capital || 0;
+    const esg = comp.esgIndex || 0;
+    const rep = comp.reputation || 0;
+    const share = comp.marketShare || 0;
+    const tech = comp.techLevel || 0;
+    const footprint = comp.environmentalFootprint || 0;
+
+    let score = (capital / 500) + (esg * 25) + (rep * 20) + (share * 100) + (tech * 10);
+    if (rep < 20) score -= 1500;
+    if (footprint > 75) score -= 1000;
+    if (capital < 200000) score -= 1500;
+    return Math.round(score);
+  };
+
   const rawCompanies = gameState?.rankings?.length
     ? gameState.rankings
     : gameState?.companies || [];
 
   const companies = rawCompanies.slice().sort((a: any, b: any) => {
-    const scoreA =
-      (a.capital || 0) / 10000 +
-      (a.reputation || 0) * 100 +
-      (a.esgIndex || 0) * 80 +
-      (a.marketShare || 0) * 200;
-    const scoreB =
-      (b.capital || 0) / 10000 +
-      (b.reputation || 0) * 100 +
-      (b.esgIndex || 0) * 80 +
-      (b.marketShare || 0) * 200;
-    return scoreB - scoreA;
+    return calculateScore(b) - calculateScore(a);
   });
 
   const world = gameState?.globalWorld;
@@ -158,6 +165,9 @@ export default function EndGamePage({ params }: { params: { gameId: string } }) 
               <div className="text-2xl font-mono font-bold text-emerald-400">
                 ${((companies[1].capital || 1000000) / 1000000).toFixed(2)}M
               </div>
+              <div className="inline-block text-xs font-mono font-bold bg-slate-800 text-slate-200 px-3 py-1 rounded-full border border-slate-700">
+                ⭐ {calculateScore(companies[1]).toLocaleString()} pts
+              </div>
               <div className="text-xs font-mono text-gray-400">
                 ESG: <span className="text-emerald-300 font-bold">{companies[1].esgIndex}/100</span> | Rep:{' '}
                 <span className="text-cyan-300 font-bold">{companies[1].reputation}/100</span>
@@ -179,6 +189,9 @@ export default function EndGamePage({ params }: { params: { gameId: string } }) 
               <div className="text-3xl font-mono font-black text-emerald-400">
                 ${((companies[0].capital || 1000000) / 1000000).toFixed(2)}M
               </div>
+              <div className="inline-block text-xs font-mono font-bold bg-amber-950 text-amber-300 px-4 py-1 rounded-full border border-amber-600 shadow-[0_0_10px_rgba(245,158,11,0.3)]">
+                ⭐ {calculateScore(companies[0]).toLocaleString()} pts
+              </div>
               <div className="text-xs font-mono text-gray-300">
                 ESG: <span className="text-emerald-300 font-bold">{companies[0].esgIndex}/100</span> | Rep:{' '}
                 <span className="text-cyan-300 font-bold">{companies[0].reputation}/100</span>
@@ -196,6 +209,9 @@ export default function EndGamePage({ params }: { params: { gameId: string } }) 
               </h3>
               <div className="text-2xl font-mono font-bold text-emerald-400">
                 ${((companies[2].capital || 1000000) / 1000000).toFixed(2)}M
+              </div>
+              <div className="inline-block text-xs font-mono font-bold bg-slate-800 text-amber-500 px-3 py-1 rounded-full border border-amber-800">
+                ⭐ {calculateScore(companies[2]).toLocaleString()} pts
               </div>
               <div className="text-xs font-mono text-gray-400">
                 ESG: <span className="text-emerald-300 font-bold">{companies[2].esgIndex}/100</span> | Rep:{' '}
@@ -245,9 +261,14 @@ export default function EndGamePage({ params }: { params: { gameId: string } }) 
                         </span>
                       </div>
 
-                      {/* Capital */}
-                      <div className="text-3xl font-mono font-black text-emerald-400 mb-4">
-                        ${((comp.capital || 1000000) / 1000000).toFixed(2)}M
+                      {/* Capital y Puntaje */}
+                      <div className="flex justify-between items-baseline mb-4">
+                        <div className="text-3xl font-mono font-black text-emerald-400">
+                          ${((comp.capital || 1000000) / 1000000).toFixed(2)}M
+                        </div>
+                        <div className="text-xs font-mono font-bold text-amber-300 bg-amber-950/70 border border-amber-800/80 px-2.5 py-1 rounded-lg">
+                          ⭐ {calculateScore(comp).toLocaleString()} pts
+                        </div>
                       </div>
 
                       {/* Descripción del Arquetipo */}

@@ -710,36 +710,38 @@ class GameEngine {
   }
 
   _calculateRevenue(company, world, pricingStrategy) {
-    const BASE_MARKET = 600000;
+    // Mercado global total de Neo-Terra accesible anualmente
+    const TOTAL_ADDRESSABLE_MARKET = 6500000;
 
     const priceMultipliers = {
-      aggressive: 1.35,
+      aggressive: 1.25,
       balanced:   1.00,
-      premium:    0.75,
+      premium:    0.85,
     };
 
     const worldFactor = (world.consumerConfidence / 100) *
-                        (1 - world.internationalRegulation / 180) *
+                        (1 - world.internationalRegulation / 200) *
                         (world.economicStability / 100 + 0.3);
 
-    let revenue = (company.marketShare / 100) * BASE_MARKET;
+    // Ingreso base derivado de la cuota de mercado
+    let revenue = (company.marketShare / 100) * TOTAL_ADDRESSABLE_MARKET;
     revenue *= (priceMultipliers[pricingStrategy] || 1.0);
-    revenue *= worldFactor;
+    revenue *= Math.max(0.45, worldFactor);
 
-    // Reputation bonus
-    if (company.reputation > 70) revenue *= 1.18;
-    else if (company.reputation < 25) revenue *= 0.72;
+    // Bono reputacional: fidelidad y confianza de clientes
+    if (company.reputation >= 70) revenue *= 1.20;
+    else if (company.reputation <= 30) revenue *= 0.70;
 
-    // Tech premium (2045: tech-savvy companies earn more)
-    revenue *= (1 + company.techLevel / 250);
+    // Tech premium: en 2045, mayor nivel tecnológico genera productos de mayor margen
+    revenue *= (1 + company.techLevel / 200);
 
-    // International access bonus
-    if (company.internationalAccess > 60) revenue *= 1.12;
+    // Acceso a mercados internacionales
+    if (company.internationalAccess >= 55) revenue *= 1.15;
 
-    // ESG premium market
-    if (company.esgIndex > 70 && pricingStrategy === 'premium') revenue *= 1.10;
+    // Nicho ético: consumidores con alto poder adquisitivo pagan sobreprecio por ESG alto
+    if (company.esgIndex >= 65 && pricingStrategy === 'premium') revenue *= 1.25;
 
-    return Math.max(0, Math.round(revenue));
+    return Math.max(60000, Math.round(revenue));
   }
 
   _applyEventToCompanies(event, allDecisions) {
@@ -791,32 +793,68 @@ class GameEngine {
     const premiumRounds  = supplierHistory.filter(s => s === 'C').length;
     const totalRounds    = supplierHistory.length || 1;
 
-    // Rule-based classification (order matters)
-    if (capital <= 200000 || reputation <= 15)
+    // 1. Quiebra técnica o colapso ético
+    if (capital <= 300000 || reputation <= 20)
       return 'EmpresaEnCrisis';
 
-    if (esgIndex >= 80 && environmentalFootprint <= 20 && regulatorRelations >= 75)
+    // 2. Modelo de triple impacto positivo (Líder Sustentable)
+    if (esgIndex >= 70 && environmentalFootprint <= 35 && regulatorRelations >= 65)
       return 'LiderSustentable';
 
-    if (innovation >= 72 && esgIndex >= 68 && techLevel >= 60)
+    // 3. Alta tecnología con responsabilidad bioética
+    if (innovation >= 65 && esgIndex >= 60 && techLevel >= 55)
       return 'InnovadorResponsable';
 
-    if (esgIndex >= 75 && (premiumRounds / totalRounds) >= 0.6)
+    // 4. Cadena limpia y certificada (Modelo ESG)
+    if (esgIndex >= 70 && (premiumRounds / totalRounds) >= 0.35)
       return 'ModeloESG';
 
-    if (marketShare >= 22 && techLevel >= 75)
+    // 5. Alta tecnología y disrupción de mercado
+    if (marketShare >= 14 && techLevel >= 65)
       return 'GiganteDisruptivo';
 
-    if (techLevel >= 78 && innovation >= 72)
+    // 6. Potencia pura en software, IA y ciberseguridad
+    if (techLevel >= 68 && innovation >= 60)
       return 'PotenciaTecnologica';
 
-    if (capital >= 4500000 && marketShare >= 15)
+    // 7. Maximización agresiva de capital financiero
+    if (capital >= 2200000 && marketShare >= 12)
       return 'ImperioCoporativo';
 
-    if ((cheapRounds / totalRounds) >= 0.6 && environmentalFootprint >= 70)
+    // 8. Modelo contaminante y extractivo
+    if ((cheapRounds / totalRounds) >= 0.45 && environmentalFootprint >= 60)
       return 'CorporacionExtractiva';
 
-    return 'SobrevivienteMercado'; // Default
+    // Por defecto: balance general resiliente
+    return 'SobrevivienteMercado';
+  }
+
+  calculateCompositeScore(company) {
+    const capital = company.capital || 0;
+    const esg = company.esgIndex || 0;
+    const rep = company.reputation || 0;
+    const share = company.marketShare || 0;
+    const tech = company.techLevel || 0;
+    const footprint = company.environmentalFootprint || 0;
+
+    // 1. Dimensión Financiera (35%): Cada $100k aporta 200 pts
+    let score = (capital / 500);
+
+    // 2. Dimensión Sostenibilidad ESG (25%): 0-100 -> 0-2,500 pts
+    score += (esg * 25);
+
+    // 3. Dimensión Reputacional y Ética (20%): 0-100 -> 0-2,000 pts
+    score += (rep * 20);
+
+    // 4. Dimensión de Competitividad de Mercado (20%): cuota + tech
+    score += (share * 100) + (tech * 10);
+
+    // 5. Penalizaciones Sistémicas del Mundo 2045:
+    if (rep < 20) score -= 1500; // Colapso reputacional
+    if (footprint > 75) score -= 1000; // Pasivo ambiental crítico
+    if (capital < 200000) score -= 1500; // Quiebra técnica
+
+    return Math.round(score);
   }
 
   endGame() {
@@ -824,15 +862,12 @@ class GameEngine {
 
     const rankings = Array.from(this.companies.values()).map(company => {
       company.archetype = this.classifyArchetype(company);
+      company.compositeScore = this.calculateCompositeScore(company);
       return this._sanitizeCompanyForPlayer(company);
     });
 
-    // Sort by composite score: capital + reputation + esgIndex
-    rankings.sort((a, b) => {
-      const scoreA = (a.capital / 10000) + (a.reputation * 100) + (a.esgIndex * 80) + (a.marketShare * 200);
-      const scoreB = (b.capital / 10000) + (b.reputation * 100) + (b.esgIndex * 80) + (b.marketShare * 200);
-      return scoreB - scoreA;
-    });
+    // Ordenar por puntaje global sistémico
+    rankings.sort((a, b) => (b.compositeScore || 0) - (a.compositeScore || 0));
 
     this.finalRankings = rankings;
 
@@ -860,7 +895,9 @@ class GameEngine {
         esgIndex: c.esgIndex,
         capital: c.capital,
         techLevel: c.techLevel,
+        environmentalFootprint: c.environmentalFootprint,
         archetype: arch,
+        compositeScore: this.calculateCompositeScore(c),
         hasDecided: this.roundDecisions.has(c.id),
       };
     });
