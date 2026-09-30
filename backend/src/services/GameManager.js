@@ -11,7 +11,11 @@ class GameManagerService {
   }
 
   createGame(hostId, settings = {}) {
-    const gameId = uuidv4();
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let gameId = '';
+    for (let i = 0; i < 6; i++) {
+      gameId += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
     const game = new GameEngine(gameId, settings);
     game.initGame(hostId, settings);
     this.games.set(gameId, game);
@@ -19,7 +23,8 @@ class GameManagerService {
   }
 
   getGame(gameId) {
-    return this.games.get(gameId);
+    if (!gameId) return null;
+    return this.games.get(gameId.toUpperCase()) || this.games.get(gameId);
   }
 
   deleteGame(gameId) {

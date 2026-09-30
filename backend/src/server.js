@@ -14,21 +14,43 @@ const { registerGameSockets } = require('./sockets/gameSocket');
 const app = express();
 const server = http.createServer(app);
 
+// CORS configuration: Allow configured FRONTEND_URL, localhost, and any vercel preview deployment
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow non-browser requests or any vercel.app / localhost
+    if (!origin || origin.includes('localhost') || origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
+      return callback(null, true);
+    }
+    return callback(null, true); // Permissive for university exposition
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+};
+
 const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-    credentials: true
-  }
+  cors: corsOptions
 });
 
 // Middleware
 app.use(helmet());
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
-}));
+app.use(cors(corsOptions));
 app.use(express.json());
+
+// Root health check route
+app.get('/', (req, res) => {
+  res.json({
+    status: 'NEO-TERRA Backend Online',
+    version: '1.0.0',
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
 
 // Rate Limiting
 const limiter = rateLimit({
