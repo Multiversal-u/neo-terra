@@ -5,7 +5,9 @@ import { motion } from 'framer-motion';
 export default function WorldMap() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center relative">
-      <h2 className="absolute top-4 left-4 font-orbitron text-neoterra-cyan text-xl">Global Map</h2>
+      <h2 className="absolute top-4 left-4 font-orbitron text-neoterra-cyan text-sm md:text-base font-bold tracking-wider">
+        MAPA GEOPOLÍTICO Y RUTAS COMERCIALES
+      </h2>
       <svg viewBox="0 0 800 400" className="w-full h-full opacity-80 drop-shadow-[0_0_15px_rgba(0,212,255,0.5)]">
         <motion.path
           d="M 100 100 Q 150 50 200 100 T 300 100 T 400 150 T 350 250 T 200 300 T 50 200 Z"

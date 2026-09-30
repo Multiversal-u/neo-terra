@@ -60,9 +60,23 @@ router.post('/:gameId/start', (req, res) => {
   }
 });
 
+router.post('/:gameId/decision', (req, res) => {
+  const { playerId, decision } = req.body;
+  const gameManager = req.app.locals.gameManager;
+  const game = gameManager.getGame(req.params.gameId);
+  if (!game) return res.status(404).json({ error: 'Game not found' });
+
+  try {
+    const result = game.submitDecision(playerId, decision);
+    res.json({ success: true, result });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 router.get('/:gameId/qr', (req, res) => {
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-  const joinUrl = `${frontendUrl}/join?gameId=${req.params.gameId}`;
+  const joinUrl = `${frontendUrl}/?code=${req.params.gameId}`;
   res.json({ success: true, joinUrl });
 });
 

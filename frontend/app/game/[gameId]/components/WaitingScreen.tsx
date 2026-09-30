@@ -1,48 +1,62 @@
 'use client';
 import React from 'react';
 
-export default function WaitingScreen() {
+interface WaitingScreenProps {
+  decidedCount?: number;
+  totalCount?: number;
+}
+
+export default function WaitingScreen({ decidedCount, totalCount }: WaitingScreenProps) {
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center space-y-12 animate-in fade-in duration-1000 p-4">
-      <div className="relative w-56 h-56 flex items-center justify-center">
-        {/* Abstract animated globe / core */}
-        <div className="absolute inset-0 rounded-full border border-cyan-900/30 bg-cyan-950/10 shadow-[inset_0_0_50px_rgba(6,182,212,0.1)]"></div>
-        <div className="absolute inset-2 rounded-full border-t-2 border-r-2 border-transparent border-t-cyan-500/70 border-r-cyan-500/30 animate-[spin_4s_linear_infinite]" />
-        <div className="absolute inset-6 rounded-full border-b-2 border-l-2 border-transparent border-b-blue-500/70 border-l-blue-500/30 animate-[spin_3s_linear_infinite_reverse]" />
-        <div className="absolute inset-10 rounded-full border-2 border-dashed border-emerald-500/20 animate-[spin_8s_linear_infinite]" />
-        
-        <div className="flex flex-col items-center justify-center z-10">
-          <span className="text-cyan-400 font-mono font-bold text-2xl tracking-widest drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">
-            SYNC
+    <div className="w-full h-full flex flex-col items-center justify-center space-y-10 animate-in fade-in duration-700 p-4 font-inter">
+      {/* Esfera / Núcleo Animado */}
+      <div className="relative w-48 h-48 flex items-center justify-center">
+        <div className="absolute inset-0 rounded-full border border-cyan-900/40 bg-cyan-950/20 shadow-[inset_0_0_40px_rgba(6,182,212,0.2)]" />
+        <div className="absolute inset-2 rounded-full border-t-2 border-r-2 border-transparent border-t-cyan-400 border-r-cyan-400/40 animate-[spin_4s_linear_infinite]" />
+        <div className="absolute inset-6 rounded-full border-b-2 border-l-2 border-transparent border-b-purple-500 border-l-purple-500/40 animate-[spin_3s_linear_infinite_reverse]" />
+        <div className="absolute inset-10 rounded-full border-2 border-dashed border-emerald-400/30 animate-[spin_8s_linear_infinite]" />
+
+        <div className="flex flex-col items-center justify-center z-10 text-center">
+          <span className="text-cyan-400 font-mono font-black text-xl tracking-widest drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">
+            SINCRONIZANDO
           </span>
-          <span className="text-cyan-500/50 text-[10px] font-mono mt-1">WAITING...</span>
+          <span className="text-cyan-500 text-[10px] font-mono mt-1 animate-pulse">
+            ESPERANDO RONDAS...
+          </span>
         </div>
-      </div>
-      
-      <div className="text-center space-y-3">
-        <h2 className="text-2xl font-black text-white tracking-widest uppercase">Directives Transmitted</h2>
-        <p className="text-slate-400 text-sm font-mono">Awaiting neural confirmation from global competitors...</p>
       </div>
 
-      <div className="bg-slate-900/80 border border-cyan-900/40 p-6 rounded-2xl max-w-md w-full backdrop-blur-sm shadow-xl">
-        <h3 className="text-[10px] text-cyan-500 uppercase font-bold mb-4 tracking-widest flex items-center justify-between border-b border-slate-800/50 pb-2">
-          <span>Live Network Status</span>
-          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> ONLINE</span>
+      <div className="text-center space-y-2 max-w-md">
+        <h2 className="text-2xl font-black font-orbitron text-white tracking-widest uppercase">
+          Directivas Transmitidas
+        </h2>
+        <p className="text-slate-400 text-xs font-mono leading-relaxed">
+          Tus decisiones han sido registradas en el libro mayor de Neo-Terra. Esperando que las demás corporaciones completen su ciclo...
+        </p>
+      </div>
+
+      <div className="bg-slate-900/80 border border-cyan-800/50 p-6 rounded-2xl max-w-md w-full backdrop-blur-sm shadow-xl">
+        <h3 className="text-xs text-cyan-400 uppercase font-bold mb-3 tracking-widest flex items-center justify-between border-b border-slate-800 pb-2 font-mono">
+          <span>Estado de la Red Global</span>
+          <span className="flex items-center gap-1.5 text-emerald-400">
+            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" /> EN LÍNEA
+          </span>
         </h3>
-        <div className="space-y-3 text-sm font-mono">
-          <div className="flex justify-between items-center p-2 rounded bg-slate-950/50 border border-slate-800">
-             <span className="text-slate-300">OmniCorp</span>
-             <span className="text-emerald-400 text-xs font-bold px-2 py-0.5 bg-emerald-950/50 rounded">LOCKED</span>
+
+        <div className="p-4 bg-slate-950/70 rounded-xl border border-slate-800 text-center">
+          <div className="text-3xl font-orbitron font-bold text-neoterra-gold">
+            {decidedCount !== undefined && totalCount !== undefined
+              ? `${decidedCount} / ${totalCount}`
+              : 'EN PROCESO'}
           </div>
-          <div className="flex justify-between items-center p-2 rounded bg-slate-950/50 border border-slate-800">
-             <span className="text-slate-300">BioGenix</span>
-             <span className="text-emerald-400 text-xs font-bold px-2 py-0.5 bg-emerald-950/50 rounded">LOCKED</span>
-          </div>
-          <div className="flex justify-between items-center p-2 rounded bg-slate-900 border border-slate-700">
-             <span className="text-slate-400">AeroDyne</span>
-             <span className="text-amber-500 text-xs font-bold px-2 py-0.5 animate-pulse">PROCESSING...</span>
-          </div>
+          <p className="text-xs font-mono text-gray-400 mt-1">
+            Empresas con directivas confirmadas
+          </p>
         </div>
+
+        <p className="text-[11px] text-gray-500 font-mono text-center mt-4">
+          Una vez concluido el tiempo, el Motor de Inteligencia Global calculará los efectos en cadena.
+        </p>
       </div>
     </div>
   );
