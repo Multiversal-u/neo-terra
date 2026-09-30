@@ -1,16 +1,34 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { 
+  ArrowLeft, 
+  Play, 
+  FileText, 
+  SkipForward, 
+  AlertTriangle, 
+  Pause, 
+  Trophy, 
+  ExternalLink, 
+  QrCode, 
+  Monitor, 
+  RefreshCw,
+  CheckCircle2,
+  Clock
+} from 'lucide-react';
 
 export default function AdminPanel({ params }: { params: { gameId: string } }) {
   const [gameState, setGameState] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://neo-terra-backend.onrender.com';
+  const gameId = params.gameId.toUpperCase();
 
   const fetchGameState = async () => {
     try {
-      const res = await fetch(`${backendUrl}/api/game/${params.gameId}`);
+      const res = await fetch(`${backendUrl}/api/game/${gameId}`);
       if (res.ok) {
         const data = await res.json();
         setGameState(data.state);
@@ -24,24 +42,24 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
     fetchGameState();
     const interval = setInterval(fetchGameState, 3000);
     return () => clearInterval(interval);
-  }, [params.gameId]);
+  }, [gameId]);
 
   const handleStartGame = async () => {
     setLoading(true);
-    setStatusMsg('Iniciando simulación...');
+    setStatusMsg('Inicializando simulación...');
     try {
-      const res = await fetch(`${backendUrl}/api/game/${params.gameId}/start`, {
+      const res = await fetch(`${backendUrl}/api/game/${gameId}/start`, {
         method: 'POST',
       });
       if (res.ok) {
-        setStatusMsg('Simulación iniciada con éxito. Ya puedes abrir la Ronda 1.');
+        setStatusMsg('Simulación iniciada. La Ronda 1 se encuentra activa en los dispositivos.');
         fetchGameState();
       } else {
         const text = await res.text();
         setStatusMsg(`Aviso: ${text}`);
       }
     } catch (err: any) {
-      setStatusMsg(`Error de conexión: ${err.message}`);
+      setStatusMsg(`Error de comunicación: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -49,17 +67,17 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
 
   const handleNextRound = async () => {
     setLoading(true);
-    setStatusMsg('Avanzando de ronda...');
+    setStatusMsg('Avanzando al siguiente ciclo...');
     try {
-      const res = await fetch(`${backendUrl}/api/admin/${params.gameId}/nextRound`, {
+      const res = await fetch(`${backendUrl}/api/admin/${gameId}/nextRound`, {
         method: 'POST',
       });
       if (res.ok) {
         const data = await res.json();
         if (data.finished) {
-          setStatusMsg('¡La simulación ha finalizado! Revisa la pantalla de resultados.');
+          setStatusMsg('La simulación ha llegado a su término. Puedes proyectar el podio de resultados.');
         } else {
-          setStatusMsg(`Ronda ${data.round?.currentRound || ''} iniciada correctamente.`);
+          setStatusMsg(`Ronda ${data.round?.currentRound || ''} iniciada con éxito.`);
         }
         fetchGameState();
       } else {
@@ -76,12 +94,12 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
   const handlePause = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${backendUrl}/api/admin/${params.gameId}/pause`, {
+      const res = await fetch(`${backendUrl}/api/admin/${gameId}/pause`, {
         method: 'POST',
       });
       const data = await res.json();
       if (res.ok) {
-        setStatusMsg(`Estado cambiado a: ${data.state}`);
+        setStatusMsg(`Estado modificado a: ${data.state}`);
         fetchGameState();
       }
     } catch (err: any) {
@@ -93,17 +111,17 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
 
   const handleCalculateRound = async () => {
     setLoading(true);
-    setStatusMsg('Evaluando directivas y generando crónicas de impacto...');
+    setStatusMsg('Evaluando directivas corporativas y generando crónicas de consecuencias...');
     try {
-      const res = await fetch(`${backendUrl}/api/admin/${params.gameId}/calculateRound`, {
+      const res = await fetch(`${backendUrl}/api/admin/${gameId}/calculateRound`, {
         method: 'POST',
       });
       const data = await res.json();
       if (res.ok) {
-        setStatusMsg('✓ Ronda evaluada. Crónicas de impacto y titulares publicados en todos los celulares.');
+        setStatusMsg('✓ Ronda evaluada. Crónicas de impacto y titulares narrativos desplegados en los celulares.');
         fetchGameState();
       } else {
-        setStatusMsg(`Error: ${data.error || 'No se pudo evaluar la ronda'}`);
+        setStatusMsg(`Error: ${data.error || 'No fue posible evaluar la ronda'}`);
       }
     } catch (err: any) {
       setStatusMsg(`Error: ${err.message}`);
@@ -113,22 +131,22 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
   };
 
   const handleEndGame = async () => {
-    if (!confirm('¿Deseas finalizar la simulación? Se evaluarán los arquetipos finales y se revelará el podio de ganadores.')) {
+    if (!confirm('¿Deseas finalizar formalmente la simulación? Se calculará el dictamen de arquetipos y se publicará el podio final.')) {
       return;
     }
     setLoading(true);
-    setStatusMsg('Finalizando simulación y clasificando arquetipos de empresas...');
+    setStatusMsg('Clasificando arquetipos de empresas y sellando resultados...');
     try {
-      const res = await fetch(`${backendUrl}/api/admin/${params.gameId}/endGame`, {
+      const res = await fetch(`${backendUrl}/api/admin/${gameId}/endGame`, {
         method: 'POST',
       });
       const data = await res.json();
       if (res.ok) {
-        setStatusMsg('✓ Simulación concluida. Podio generado con éxito.');
+        setStatusMsg('✓ Simulación concluida. Podio generado.');
         fetchGameState();
-        window.open(`/end/${params.gameId}`, '_blank');
+        window.open(`/end/${gameId}`, '_blank');
       } else {
-        setStatusMsg(`Error: ${data.error || 'No se pudo finalizar la simulación'}`);
+        setStatusMsg(`Error: ${data.error || 'No fue posible finalizar'}`);
       }
     } catch (err: any) {
       setStatusMsg(`Error: ${err.message}`);
@@ -139,15 +157,15 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
 
   const handleTriggerEmergency = async () => {
     setLoading(true);
-    setStatusMsg('Activando incidente de emergencia relámpago...');
+    setStatusMsg('Inyectando contingencia imprevista en tiempo real...');
     try {
-      const res = await fetch(`${backendUrl}/api/admin/${params.gameId}/emergency`, {
+      const res = await fetch(`${backendUrl}/api/admin/${gameId}/emergency`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
       if (res.ok) {
         const data = await res.json();
-        setStatusMsg(`🚨 EMERGENCIA ACTIVADA: ${data.emergency?.title}`);
+        setStatusMsg(`🚨 Contingencia activada: ${data.emergency?.title}`);
         fetchGameState();
       } else {
         const text = await res.text();
@@ -163,11 +181,11 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
   const handleResolveEmergency = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${backendUrl}/api/admin/${params.gameId}/resolveEmergency`, {
+      const res = await fetch(`${backendUrl}/api/admin/${gameId}/resolveEmergency`, {
         method: 'POST',
       });
       if (res.ok) {
-        setStatusMsg('✓ Emergencia concluida. Simulación reanudada con éxito.');
+        setStatusMsg('✓ Contingencia resuelta. Simulación reanudada.');
         fetchGameState();
       }
     } catch (err: any) {
@@ -178,179 +196,258 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
   };
 
   return (
-    <div className="min-h-screen bg-neoterra-dark text-white p-8 font-inter">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-cyan-900/50 pb-4 gap-4">
-        <div>
-          <h1 className="text-3xl font-orbitron text-neoterra-cyan tracking-wider">
-            PANEL DE CONTROL DEL EXPOSITOR
-          </h1>
-          <p className="text-sm font-mono text-gray-400 mt-1">
-            SESIÓN: <span className="text-neoterra-gold font-bold">{params.gameId}</span> | ESTADO:{' '}
-            <span className="text-neoterra-cyan uppercase">{gameState?.state || 'CARGANDO...'}</span>
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <a
-            href={`/end/${params.gameId}`}
-            target="_blank"
-            rel="noreferrer"
-            className="bg-amber-950/70 hover:bg-amber-900 text-amber-300 border border-amber-500/60 px-4 py-2 rounded-lg font-mono text-sm transition-all flex items-center gap-2 shadow-[0_0_12px_rgba(251,191,36,0.2)] font-bold"
-          >
-            🏆 Podio y Resultados Finales
-          </a>
-          <a
-            href={`/dashboard/${params.gameId}`}
-            target="_blank"
-            rel="noreferrer"
-            className="bg-purple-900/60 hover:bg-purple-800 text-purple-200 border border-purple-500/50 px-4 py-2 rounded-lg font-mono text-sm transition-all flex items-center gap-2"
-          >
-            🖥️ Proyectar Dashboard
-          </a>
-          <a
-            href={`/lobby/${params.gameId}`}
-            target="_blank"
-            rel="noreferrer"
-            className="bg-cyan-950/60 hover:bg-cyan-900 text-cyan-200 border border-cyan-500/50 px-4 py-2 rounded-lg font-mono text-sm transition-all flex items-center gap-2"
-          >
-            📱 Ver QR de Acceso
-          </a>
-        </div>
-      </div>
-
-      {statusMsg && (
-        <div className="mb-6 p-4 rounded-xl bg-slate-900/90 border border-cyan-500/40 text-cyan-300 font-mono text-sm flex items-center justify-between">
-          <span>{statusMsg}</span>
-          <button onClick={() => setStatusMsg('')} className="text-gray-400 hover:text-white">✕</button>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Controles de Simulación */}
-        <div className="bg-neoterra-navy/50 p-6 rounded-xl border border-gray-700 backdrop-blur-sm">
-          <h2 className="text-xl font-bold mb-2 text-neoterra-gold font-orbitron flex items-center gap-2">
-            ⚙️ Controles de Ronda
-          </h2>
-          <p className="text-xs text-gray-400 mb-6 font-mono">
-            Ronda actual: <strong className="text-white">{gameState?.currentRound || 0}</strong> de {gameState?.maxRounds || 8}
-          </p>
-
-          <div className="flex flex-col gap-4">
-            <button
-              onClick={handleStartGame}
-              disabled={loading || (gameState?.state && gameState.state !== 'lobby')}
-              className="bg-neoterra-green text-black font-bold py-3 px-4 rounded-lg hover:bg-green-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-mono tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.2)]"
-            >
-              ▶ 1. INICIALIZAR SIMULACIÓN (Abrir Ronda 1)
-            </button>
-
-            <button
-              onClick={handleCalculateRound}
-              disabled={loading || gameState?.state === 'lobby'}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all font-mono tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center justify-center gap-2"
-            >
-              📊 2. EVALUAR RONDA Y PUBLICAR CRÓNICA (A Celulares)
-            </button>
-
-            <button
-              onClick={handleNextRound}
-              disabled={loading}
-              className="bg-neoterra-cyan text-black font-bold py-3 px-4 rounded-lg hover:bg-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-mono tracking-wider shadow-[0_0_15px_rgba(0,212,255,0.2)]"
-            >
-              ⏭ 3. INICIAR SIGUIENTE RONDA (Nuevo Dilema)
-            </button>
-
-            <button
-              onClick={handleTriggerEmergency}
-              disabled={loading || !!gameState?.activeEmergency}
-              className="bg-amber-500 hover:bg-amber-400 text-black font-black py-3 px-4 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all font-mono tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.3)] flex items-center justify-center gap-2 border border-amber-400"
-            >
-              🚨 4. INYECTAR EMERGENCIA RELÁMPAGO (Crisis)
-            </button>
-
-            <button
-              onClick={handlePause}
-              disabled={loading}
-              className="bg-slate-800 text-gray-300 hover:text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-700 transition-all font-mono text-xs tracking-wider border border-slate-700"
-            >
-              ⏸ PAUSAR / REANUDAR SIMULACIÓN
-            </button>
-
-            <div className="pt-2 border-t border-gray-700/80">
-              <button
-                onClick={handleEndGame}
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 text-black font-black py-3 px-4 rounded-xl transition-all font-mono tracking-wider shadow-[0_0_25px_rgba(251,191,36,0.3)] flex items-center justify-center gap-2"
-              >
-                🏁 5. FINALIZAR SIMULACIÓN Y VER PODIO FINAL
-              </button>
+    <div className="min-h-screen bg-paper text-ink font-sans selection:bg-moss-soft selection:text-moss-dark p-6 sm:p-10">
+      <div className="max-w-7xl mx-auto space-y-8">
+        
+        {/* Cabecera Principal */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center pb-6 border-b border-sand-border gap-6">
+          <div>
+            <div className="flex items-center gap-3">
+              <Link href="/admin" className="text-xs font-mono text-ink-muted hover:text-ink flex items-center gap-1">
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Salas</span>
+              </Link>
+              <span className="text-sand-300">/</span>
+              <span className="text-xs font-mono uppercase tracking-widest text-moss font-semibold">
+                PANEL DE CÁTEDRA
+              </span>
             </div>
 
-            {gameState?.activeEmergency && (
-              <div className="p-4 bg-red-950/90 border-2 border-red-500 rounded-xl space-y-2 mt-2">
-                <div className="font-bold text-red-300 font-mono text-xs uppercase flex items-center gap-2">
-                  <span className="w-2 h-2 bg-red-500 rounded-full animate-ping" />
-                  INCIDENTE DE EMERGENCIA ACTIVO EN DISPOSITIVOS
+            <h1 className="font-serif text-3xl sm:text-4xl text-ink font-normal tracking-tight mt-1">
+              Control de Simulación
+            </h1>
+
+            <div className="flex items-center gap-3 mt-2 text-xs font-mono text-ink-muted">
+              <span>SALA: <strong className="text-ink font-bold">{gameId}</strong></span>
+              <span>•</span>
+              <span>ESTADO: <strong className="text-moss uppercase">{gameState?.state || 'EN LÍNEA'}</strong></span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2.5">
+            <Link
+              href={`/lobby/${gameId}`}
+              target="_blank"
+              className="text-xs font-medium uppercase tracking-wider text-ink border border-sand-border hover:border-moss bg-sand-50 hover:bg-white px-3.5 py-2 rounded transition-all flex items-center gap-1.5"
+            >
+              <QrCode className="w-3.5 h-3.5 text-moss" />
+              <span>Ver QR de Sala</span>
+            </Link>
+
+            <Link
+              href={`/dashboard/${gameId}`}
+              target="_blank"
+              className="text-xs font-medium uppercase tracking-wider text-ink border border-sand-border hover:border-moss bg-sand-50 hover:bg-white px-3.5 py-2 rounded transition-all flex items-center gap-1.5"
+            >
+              <Monitor className="w-3.5 h-3.5 text-moss" />
+              <span>Proyectar Tablero</span>
+            </Link>
+
+            <Link
+              href={`/end/${gameId}`}
+              target="_blank"
+              className="text-xs font-medium uppercase tracking-wider text-terracotta border border-terracotta/30 hover:border-terracotta bg-terracotta-soft px-3.5 py-2 rounded transition-all flex items-center gap-1.5"
+            >
+              <Trophy className="w-3.5 h-3.5" />
+              <span>Podio de Resultados</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Mensaje de Estado / Errata */}
+        {statusMsg && (
+          <div className="p-4 rounded border border-sand-border bg-white text-xs font-mono text-ink flex items-center justify-between shadow-subtle">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-moss" />
+              <span>{statusMsg}</span>
+            </div>
+            <button onClick={() => setStatusMsg('')} className="text-ink-muted hover:text-ink font-bold text-sm ml-4">
+              ✕
+            </button>
+          </div>
+        )}
+
+        {/* Grilla Principal: Controles y Monitoreo */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Columna Izquierda (7 cols): Controles de Ronda */}
+          <div className="lg:col-span-7 space-y-6">
+            <div className="border border-sand-border bg-white p-7 rounded-lg shadow-paper">
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-sand-border">
+                <div>
+                  <span className="text-[11px] font-mono tracking-widest uppercase text-moss font-semibold block">
+                    SECUENCIA PEDAGÓGICA
+                  </span>
+                  <h2 className="font-serif text-2xl text-ink font-normal mt-0.5">
+                    Gobernanza del Ciclo
+                  </h2>
                 </div>
-                <div className="font-bold text-sm text-white font-orbitron">{gameState.activeEmergency.title}</div>
-                <div className="text-xs text-gray-300 font-mono">
-                  Respuestas de crisis recibidas: <strong className="text-amber-300">{gameState.emergencyDecidedCount || 0}</strong> de {gameState.totalPlayers || 0} empresas
+                <div className="text-right">
+                  <span className="text-[11px] font-mono text-ink-faint block uppercase">Ronda Actual</span>
+                  <span className="font-serif text-2xl text-ink font-normal">
+                    {gameState?.currentRound || 0} <span className="text-sm font-sans text-ink-muted">/ {gameState?.maxRounds || 8}</span>
+                  </span>
                 </div>
+              </div>
+
+              <div className="space-y-3.5">
+                {/* 1. Iniciar Simulación */}
                 <button
-                  onClick={handleResolveEmergency}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-xs uppercase font-mono tracking-wider mt-2 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                  onClick={handleStartGame}
+                  disabled={loading || (gameState?.state && gameState.state !== 'lobby')}
+                  className="w-full bg-sand-100 hover:bg-sand-200 disabled:opacity-40 disabled:cursor-not-allowed text-ink font-medium p-4 rounded border border-sand-border text-xs uppercase tracking-wider flex items-center justify-between transition-colors"
                 >
-                  ✓ Concluir Emergencia y Reanudar Simulación
+                  <div className="flex items-center gap-3">
+                    <span className="font-serif text-base font-bold text-moss">01.</span>
+                    <span className="font-semibold text-left">Inicializar Simulación (Abrir Ronda 1)</span>
+                  </div>
+                  <Play className="w-4 h-4 text-moss shrink-0" />
                 </button>
-              </div>
-            )}
-          </div>
-        </div>
 
-        {/* Empresas Conectadas */}
-        <div className="bg-neoterra-navy/50 p-6 rounded-xl border border-gray-700 backdrop-blur-sm">
-          <h2 className="text-xl font-bold mb-2 text-neoterra-purple font-orbitron flex items-center justify-between">
-            <span>🏢 Empresas Conectadas</span>
-            <span className="text-sm font-mono text-cyan-400">
-              ({gameState?.companies?.length || 0} empresas)
-            </span>
-          </h2>
-          <p className="text-xs text-gray-400 mb-4 font-mono">
-            Decisiones enviadas esta ronda: {gameState?.decidedCount || 0} / {gameState?.totalPlayers || 0}
-          </p>
-
-          <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
-            {(!gameState?.companies || gameState.companies.length === 0) ? (
-              <div className="text-center py-12 text-gray-500 font-mono text-sm border border-dashed border-gray-800 rounded-lg">
-                Esperando que los estudiantes escaneen el QR y se conecten...
-              </div>
-            ) : (
-              gameState.companies.map((company: any) => (
-                <div
-                  key={company.id}
-                  className="flex justify-between items-center p-3 bg-black/40 rounded-lg border border-gray-800"
+                {/* 2. Evaluar y Publicar Crónica */}
+                <button
+                  onClick={handleCalculateRound}
+                  disabled={loading || gameState?.state === 'lobby'}
+                  className="w-full bg-moss hover:bg-moss-light disabled:opacity-40 disabled:cursor-not-allowed text-paper font-medium p-4 rounded border border-moss-dark text-xs uppercase tracking-wider flex items-center justify-between transition-colors shadow-subtle"
                 >
-                  <div>
-                    <span className="font-bold text-white">{company.name}</span>
-                    <span className="text-xs text-gray-400 ml-2 font-mono">
-                      (Cap: ${(company.capital / 1000).toFixed(0)}k)
-                    </span>
+                  <div className="flex items-center gap-3">
+                    <span className="font-serif text-base font-bold text-sand-300">02.</span>
+                    <span className="font-semibold text-left">Evaluar Ronda y Publicar Crónica de Impacto</span>
                   </div>
-                  <div>
-                    {company.hasDecided ? (
-                      <span className="text-green-400 text-xs font-mono font-bold bg-green-950/60 border border-green-800 px-2 py-0.5 rounded">
-                        ✓ DECISIÓN LISTA
-                      </span>
-                    ) : (
-                      <span className="text-yellow-400 text-xs font-mono bg-yellow-950/60 border border-yellow-800 px-2 py-0.5 rounded animate-pulse">
-                        ⏳ PENSANDO...
-                      </span>
-                    )}
+                  <FileText className="w-4 h-4 text-sand-300 shrink-0" />
+                </button>
+
+                {/* 3. Siguiente Ronda */}
+                <button
+                  onClick={handleNextRound}
+                  disabled={loading}
+                  className="w-full bg-sand-50 hover:bg-sand-100 disabled:opacity-40 disabled:cursor-not-allowed text-ink font-medium p-4 rounded border border-sand-border text-xs uppercase tracking-wider flex items-center justify-between transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="font-serif text-base font-bold text-ink-muted">03.</span>
+                    <span className="font-semibold text-left">Iniciar Siguiente Ronda (Nuevo Dilema)</span>
                   </div>
+                  <SkipForward className="w-4 h-4 text-ink-muted shrink-0" />
+                </button>
+
+                {/* 4. Inyectar Emergencia */}
+                <button
+                  onClick={handleTriggerEmergency}
+                  disabled={loading || !!gameState?.activeEmergency}
+                  className="w-full bg-terracotta-soft hover:bg-terracotta/20 disabled:opacity-40 disabled:cursor-not-allowed text-terracotta-dark font-medium p-4 rounded border border-terracotta/40 text-xs uppercase tracking-wider flex items-center justify-between transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="font-serif text-base font-bold text-terracotta">04.</span>
+                    <span className="font-semibold text-left">Inyectar Emergencia Relámpago (Crisis Imprevista)</span>
+                  </div>
+                  <AlertTriangle className="w-4 h-4 text-terracotta shrink-0" />
+                </button>
+
+                {/* 5. Pausar */}
+                <div className="pt-2 flex gap-3">
+                  <button
+                    onClick={handlePause}
+                    disabled={loading}
+                    className="flex-1 bg-white hover:bg-sand-50 text-ink-muted hover:text-ink font-medium py-3 px-4 rounded border border-sand-border text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <Pause className="w-3.5 h-3.5" />
+                    <span>Pausar / Reanudar</span>
+                  </button>
+
+                  <button
+                    onClick={handleEndGame}
+                    disabled={loading}
+                    className="flex-1 bg-sand-200 hover:bg-sand-300 text-ink font-medium py-3 px-4 rounded border border-sand-border text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <Trophy className="w-3.5 h-3.5 text-moss" />
+                    <span>Concluir Simulación</span>
+                  </button>
                 </div>
-              ))
-            )}
+              </div>
+
+              {/* Caja de Emergencia Activa */}
+              {gameState?.activeEmergency && (
+                <div className="mt-6 p-5 border border-terracotta bg-terracotta-soft rounded-lg space-y-3 animate-fade-in-up">
+                  <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-terracotta-dark font-bold">
+                    <span className="w-2 h-2 rounded-full bg-terracotta animate-ping" />
+                    <span>Incidente de Emergencia Activo en Dispositivos</span>
+                  </div>
+                  <h3 className="font-serif text-lg text-ink font-normal">
+                    {gameState.activeEmergency.title}
+                  </h3>
+                  <div className="text-xs font-mono text-ink-muted">
+                    Respuestas de contingencia recibidas: <strong className="text-ink">{gameState.emergencyDecidedCount || 0}</strong> de {gameState.totalPlayers || 0} empresas
+                  </div>
+                  <button
+                    onClick={handleResolveEmergency}
+                    className="w-full bg-moss hover:bg-moss-light text-paper font-medium py-2.5 px-4 rounded text-xs uppercase tracking-wider border border-moss-dark transition-colors"
+                  >
+                    Concluir Emergencia y Retomar Ciclo Normal
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
+
+          {/* Columna Derecha (5 cols): Monitor de Alumnos Conectados */}
+          <div className="lg:col-span-5 space-y-6">
+            <div className="border border-sand-border bg-white p-7 rounded-lg shadow-paper">
+              <div className="flex items-center justify-between mb-4 pb-4 border-b border-sand-border">
+                <div>
+                  <span className="text-[11px] font-mono tracking-widest uppercase text-moss font-semibold block">
+                    AUDITORÍA EN VIVO
+                  </span>
+                  <h2 className="font-serif text-2xl text-ink font-normal mt-0.5">
+                    Corporaciones Conectadas
+                  </h2>
+                </div>
+                <span className="text-xs font-mono bg-sand-100 px-2.5 py-1 rounded border border-sand-border text-ink">
+                  {gameState?.decidedCount || 0} / {gameState?.totalPlayers || 0} Listas
+                </span>
+              </div>
+
+              <div className="space-y-2.5 max-h-[460px] overflow-y-auto pr-1">
+                {(!gameState?.companies || gameState.companies.length === 0) ? (
+                  <div className="py-16 text-center text-xs font-mono text-ink-faint border border-dashed border-sand-border rounded p-6">
+                    Esperando que los estudiantes escaneen el QR y registren sus consorcios...
+                  </div>
+                ) : (
+                  gameState.companies.map((comp: any) => (
+                    <div
+                      key={comp.id}
+                      className="p-3.5 rounded border border-sand-border bg-sand-50/60 flex items-center justify-between transition-colors hover:bg-white"
+                    >
+                      <div>
+                        <div className="text-sm font-medium text-ink">
+                          {comp.name}
+                        </div>
+                        <div className="text-[11px] font-mono text-ink-faint">
+                          Cap: ${(Number(comp.capital) / 1000).toFixed(0)}k • ESG: {comp.esgIndex || 40}
+                        </div>
+                      </div>
+
+                      <div>
+                        {comp.hasDecided ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-mono text-moss bg-moss-soft px-2.5 py-1 rounded border border-moss/30 font-medium">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>Confirmada</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-mono text-ink-faint bg-sand-100 px-2.5 py-1 rounded border border-sand-border">
+                            <Clock className="w-3 h-3" />
+                            <span>Evaluando</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+
         </div>
+
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 'use client';
+
 import React from 'react';
+import { Clock, CheckCircle2, FileText } from 'lucide-react';
 
 interface WaitingScreenProps {
   decidedCount?: number;
@@ -8,58 +10,61 @@ interface WaitingScreenProps {
   hasNarrative?: boolean;
 }
 
-export default function WaitingScreen({ decidedCount, totalCount, onViewNarrative, hasNarrative }: WaitingScreenProps) {
+export default function WaitingScreen({ 
+  decidedCount, 
+  totalCount, 
+  onViewNarrative, 
+  hasNarrative 
+}: WaitingScreenProps) {
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center space-y-8 animate-in fade-in duration-700 p-4 font-inter">
-      {/* Esfera / Núcleo Animado */}
-      <div className="relative w-40 h-40 md:w-48 md:h-48 flex items-center justify-center">
-        <div className="absolute inset-0 rounded-full border border-cyan-900/40 bg-cyan-950/20 shadow-[inset_0_0_40px_rgba(6,182,212,0.2)]" />
-        <div className="absolute inset-2 rounded-full border-t-2 border-r-2 border-transparent border-t-cyan-400 border-r-cyan-400/40 animate-[spin_4s_linear_infinite]" />
-        <div className="absolute inset-6 rounded-full border-b-2 border-l-2 border-transparent border-b-purple-500 border-l-purple-500/40 animate-[spin_3s_linear_infinite_reverse]" />
-        <div className="absolute inset-10 rounded-full border-2 border-dashed border-emerald-400/30 animate-[spin_8s_linear_infinite]" />
-
-        <div className="flex flex-col items-center justify-center z-10 text-center">
-          <span className="text-cyan-400 font-mono font-black text-lg md:text-xl tracking-widest drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">
-            SINCRONIZANDO
-          </span>
-          <span className="text-cyan-500 text-[10px] font-mono mt-1 animate-pulse">
-            ESPERANDO RONDAS...
-          </span>
+    <div className="w-full h-full flex flex-col items-center justify-center space-y-8 p-6 font-sans max-w-md mx-auto animate-fade-in-up">
+      
+      {/* Símbolo de Sincronización Orgánica */}
+      <div className="relative w-28 h-28 flex items-center justify-center">
+        <div className="absolute inset-0 rounded-full border border-sand-border bg-sand-50" />
+        <div className="absolute inset-2 rounded-full border-t border-moss animate-[spin_3s_linear_infinite]" />
+        <div className="w-12 h-12 rounded-full bg-white border border-sand-border flex items-center justify-center shadow-subtle">
+          <Clock className="w-5 h-5 text-moss" />
         </div>
       </div>
 
-      <div className="text-center space-y-2 max-w-md">
-        <h2 className="text-xl md:text-2xl font-black font-orbitron text-white tracking-widest uppercase">
-          Directivas Bloqueadas y Transmitidas
+      <div className="text-center space-y-2">
+        <span className="text-[10px] font-mono uppercase bg-moss-soft text-moss-dark border border-moss/30 px-3 py-1 rounded font-semibold inline-block">
+          DIRECTIVAS ASENTADAS EN EL LIBRO MAYOR
+        </span>
+        <h2 className="text-2xl font-serif text-ink font-normal">
+          Decisión Registrada con Éxito
         </h2>
-        <p className="text-slate-400 text-xs font-mono leading-relaxed">
-          Tus decisiones están registradas en el libro mayor de Neo-Terra. Esperando que el docente evalúe el ciclo para revelar la crónica de consecuencias globales...
+        <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-light">
+          Tus directivas están consolidadas. Aguardando a que el facilitador evalúe el impacto sistémico del ciclo.
         </p>
       </div>
 
-      <div className="bg-slate-900/80 border border-cyan-800/50 p-6 rounded-2xl max-w-md w-full backdrop-blur-sm shadow-xl">
-        <h3 className="text-xs text-cyan-400 uppercase font-bold mb-3 tracking-widest flex items-center justify-between border-b border-slate-800 pb-2 font-mono">
-          <span>Estado de la Red Global</span>
-          <span className="flex items-center gap-1.5 text-emerald-400">
-            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" /> EN LÍNEA
-          </span>
-        </h3>
-
-        <div className="p-4 bg-slate-950/70 rounded-xl border border-slate-800 text-center">
-          <div className="text-3xl font-orbitron font-bold text-neoterra-gold">
-            {decidedCount !== undefined && totalCount !== undefined
-              ? `${decidedCount} / ${totalCount}`
-              : 'EN PROCESO'}
-          </div>
-          <p className="text-xs font-mono text-gray-400 mt-1">
-            Empresas con directivas confirmadas
-          </p>
+      {/* Tarjeta de Contador de Sala */}
+      <div className="bg-white border border-sand-border p-6 rounded-lg w-full shadow-paper text-center space-y-2">
+        <span className="text-[11px] font-mono text-ink-faint uppercase tracking-wider block">
+          AVANCE COLECTIVO EN SALA
+        </span>
+        <div className="font-serif text-4xl text-moss font-normal">
+          {decidedCount !== undefined && totalCount !== undefined
+            ? `${decidedCount} / ${totalCount}`
+            : 'En Progreso'}
         </div>
-
-        <p className="text-[11px] text-gray-500 font-mono text-center mt-4">
-          Una vez concluido el tiempo, el Motor de Inteligencia Global calculará los efectos en cadena.
+        <p className="text-xs text-ink-muted font-light">
+          Corporaciones con directivas transmitidas
         </p>
       </div>
+
+      {hasNarrative && onViewNarrative && (
+        <button
+          onClick={onViewNarrative}
+          className="w-full bg-sand-100 hover:bg-white text-ink font-medium py-3 px-4 rounded border border-sand-border hover:border-moss text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
+        >
+          <FileText className="w-4 h-4 text-moss" />
+          <span>Releer Crónica del Ciclo Previo</span>
+        </button>
+      )}
+
     </div>
   );
 }

@@ -1,4 +1,5 @@
 'use client';
+
 import React from 'react';
 
 interface NewsTickerPanelProps {
@@ -7,24 +8,26 @@ interface NewsTickerPanelProps {
 
 export default function NewsTickerPanel({ news }: NewsTickerPanelProps) {
   const defaultHeadlines = [
-    '+++ MERCADOS GLOBALES EN ALERTA POR NUEVAS REGULACIONES DE CARBONO +++',
-    '+++ CORPORACIONES ACELERAN LA TRANSICIÓN A CADENAS DE SUMINISTRO LIMPIAS +++',
-    '+++ TENSIONES GEOPOLÍTICAS IMPACTAN RUTAS LOGÍSTICAS INTERNACIONALES +++',
-    '+++ INVESTIGACIONES DE LA ONU PONEN BAJO LA LUPA A PROVEEDORES DE BAJO COSTO +++',
-    '+++ CONSUMIDORES DE LA GENERACIÓN Z RECHAZAN EMPRESAS SIN ÍNDICE ESG VERIFICADO +++',
+    'MERCADOS GLOBALES EN ALERTA POR NUEVAS REGULACIONES DE CARBONO TRANSFRONTERIZAS',
+    'CONSORCIOS INDUSTRIALES ACELERAN LA TRANSICIÓN A CADENAS DE SUMINISTRO REGENERATIVAS',
+    'TENSIONES GEOPOLÍTICAS RECONFIGURAN RUTAS LOGÍSTICAS EN EL SUR GLOBAL',
+    'AUDITORÍAS CRIPTO-ECOLÓGICAS DESENMASCARAN PROVEEDORES OPACOS',
+    'CONSUMIDORES PENALIZAN CORPORACIONES CON ÍNDICE ESG INFERIOR A 40 PUNTOS',
   ];
 
-  const items = news && news.length > 0 ? news.map((n) => `+++ ${n.headline.toUpperCase()} +++`) : defaultHeadlines;
+  const items = news && news.length > 0 
+    ? news.map((n) => `• ${n.headline.toUpperCase()}`) 
+    : defaultHeadlines.map((h) => `• ${h}`);
 
   return (
-    <div className="bg-slate-950 border-t border-cyan-900/50 text-slate-300 py-1.5 px-3 flex items-center overflow-hidden z-20 shrink-0 font-mono">
-      <div className="bg-red-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded mr-3 shrink-0 uppercase tracking-widest shadow-[0_0_8px_rgba(220,38,38,0.5)] z-10">
-        EN VIVO
+    <div className="bg-sand-100 border-t border-sand-border text-ink py-2 px-4 flex items-center overflow-hidden z-20 shrink-0 font-sans">
+      <div className="bg-moss text-paper text-[10px] font-mono font-medium px-2 py-0.5 rounded mr-3 shrink-0 uppercase tracking-wider">
+        BOLETÍN
       </div>
       <div className="flex-1 whitespace-nowrap overflow-hidden relative flex items-center h-full">
-        <div className="inline-block animate-[marquee_35s_linear_infinite] text-xs">
+        <div className="inline-block animate-[marquee_45s_linear_infinite] text-xs font-mono text-ink-muted">
           {items.map((item, idx) => (
-            <span key={idx} className="mx-6 text-cyan-300">
+            <span key={idx} className="mx-6">
               {item}
             </span>
           ))}

@@ -1,13 +1,16 @@
 'use client';
+
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import WorldMap from './components/WorldMap';
 import GlobalMetricsPanel from './components/GlobalMetricsPanel';
 import CompanyRankings from './components/CompanyRankings';
 import LiveEventsFeed from './components/LiveEventsFeed';
+import { Trophy, ArrowLeft, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 
 export default function DashboardPage({ params }: { params: { gameId: string } }) {
   const [gameState, setGameState] = useState<any>(null);
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://neo-terra-backend.onrender.com';
   const gameId = params.gameId.toUpperCase();
 
   // Polling automático cada 2.5 segundos para reflejar decisiones de los alumnos en vivo
@@ -36,124 +39,110 @@ export default function DashboardPage({ params }: { params: { gameId: string } }
   const globalWorld = gameState?.globalWorld;
 
   return (
-    <div className="min-h-screen bg-neoterra-dark text-white p-4 md:p-6 font-inter flex flex-col justify-between overflow-x-hidden">
+    <div className="min-h-screen bg-paper text-ink font-sans p-6 md:p-8 flex flex-col justify-between selection:bg-moss-soft selection:text-moss-dark">
+      
       {/* Cabecera Principal Proyectable */}
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-cyan-800/40 pb-4 gap-4">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center pb-6 border-b border-sand-border gap-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black font-orbitron text-neoterra-cyan tracking-widest flex items-center gap-3">
-            <span className="w-3 h-3 bg-cyan-400 rounded-full animate-ping" />
-            CENTRO DE CONTROL GLOBAL // NEO-TERRA 2045
-          </h1>
-          <p className="text-xs font-mono text-gray-400 mt-1">
-            Simulador de Sistemas de Información, Sostenibilidad y Negocios Internacionales
+          <div className="flex items-center gap-3">
+            <span className="w-2.5 h-2.5 rounded-full bg-moss inline-block animate-pulse" />
+            <Link href="/" className="font-serif text-2xl md:text-3xl text-ink font-normal tracking-tight hover:opacity-80 transition-opacity">
+              NEO-TERRA <span className="text-xs font-mono uppercase text-ink-muted">/ 2045</span>
+            </Link>
+            <span className="text-sand-300">|</span>
+            <span className="text-xs font-mono uppercase tracking-widest text-moss font-semibold">
+              TABLERO PÚBLICO DE SALA
+            </span>
+          </div>
+          <p className="text-xs text-ink-muted mt-1 font-light">
+            Observatorio Global de Gobernanza Sistémica, Sostenibilidad y Cadenas de Valor
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="bg-slate-900 border border-amber-500/40 px-5 py-2 rounded-xl text-center shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-            <span className="text-[10px] text-gray-400 font-mono uppercase block">Progreso Global</span>
-            <span className="text-lg md:text-xl font-orbitron font-black text-neoterra-gold">
-              RONDA {currentRound} / {maxRounds}
+        <div className="flex items-center gap-3.5">
+          <div className="bg-white border border-sand-border px-5 py-2.5 rounded-lg text-center shadow-subtle">
+            <span className="text-[10px] text-ink-faint font-mono uppercase tracking-wider block">Progreso de Ciclo</span>
+            <span className="text-xl font-serif font-normal text-moss">
+              Ronda {currentRound} <span className="text-xs font-sans text-ink-muted">/ {maxRounds}</span>
             </span>
           </div>
 
-          <div className="bg-slate-900 border border-purple-500/40 px-5 py-2 rounded-xl text-center">
-            <span className="text-[10px] text-gray-400 font-mono uppercase block">Código de Sala</span>
-            <span className="text-lg md:text-xl font-orbitron font-bold text-purple-300">
+          <div className="bg-white border border-sand-border px-5 py-2.5 rounded-lg text-center shadow-subtle">
+            <span className="text-[10px] text-ink-faint font-mono uppercase tracking-wider block">Clave de Acceso</span>
+            <span className="text-xl font-mono font-bold text-ink tracking-widest">
               {gameId}
             </span>
           </div>
+
+          <Link
+            href={`/admin/${gameId}`}
+            className="text-xs font-medium uppercase tracking-wider text-ink-muted border border-sand-border hover:border-moss bg-sand-50 hover:bg-white px-3.5 py-3 rounded transition-all flex items-center gap-1.5"
+          >
+            <span>Panel Moderador</span>
+          </Link>
         </div>
       </header>
 
       {/* Banner de Simulación Concluida */}
       {gameState?.state === 'finished' && (
-        <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-amber-950 via-slate-900 to-amber-950 border-2 border-amber-500 shadow-[0_0_60px_rgba(251,191,36,0.4)] flex flex-col md:flex-row justify-between items-center gap-4 animate-in zoom-in-95">
+        <div className="my-6 p-6 rounded-lg bg-white border border-sand-border shadow-paper flex flex-col md:flex-row justify-between items-center gap-6 animate-fade-in-up">
           <div className="flex items-center gap-4">
-            <span className="text-4xl animate-bounce">🏆</span>
+            <div className="w-12 h-12 rounded border border-sand-border bg-sand-100 flex items-center justify-center text-2xl shrink-0">
+              🏆
+            </div>
             <div>
-              <div className="text-amber-400 font-mono font-bold text-xs uppercase tracking-widest">
+              <div className="text-moss font-mono font-semibold text-xs uppercase tracking-widest">
                 SIMULACIÓN GLOBAL CONCLUIDA // LIBRO MAYOR CERRADO
               </div>
-              <h2 className="text-xl md:text-2xl font-orbitron font-black text-white">
-                TODAS LAS RONDAS HAN FINALIZADO
+              <h2 className="text-2xl font-serif text-ink font-normal mt-0.5">
+                Todas las Rondas han Finalizado
               </h2>
-              <p className="text-xs text-gray-300 font-sans mt-0.5">
-                Los arquetipos corporativos han sido dictaminados y el destino de Neo-Terra 2045 está sellado.
+              <p className="text-xs text-ink-muted font-light mt-0.5">
+                Los arquetipos corporativos han sido calculados y el destino socio-ecológico está sellado.
               </p>
             </div>
           </div>
-          <a
+          <Link
             href={`/end/${gameId}`}
-            className="bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black font-black font-orbitron py-3.5 px-6 rounded-xl text-sm tracking-wider shadow-[0_0_20px_rgba(251,191,36,0.6)] shrink-0 flex items-center gap-2 hover:scale-105 transition-all"
+            className="bg-moss hover:bg-moss-light text-paper font-medium py-3 px-6 rounded text-xs uppercase tracking-wider border border-moss-dark shrink-0 flex items-center gap-2 transition-all shadow-subtle"
           >
-            <span>👑</span> PROYECTAR PODIO FINAL Y ARQUETIPOS ➔
-          </a>
+            <span>Proyectar Podio Final y Arquetipos</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       )}
 
-      {/* Banner de Emergencia Activa en Pantalla Gigante */}
-      {gameState?.activeEmergency && (
-        <div className="mb-6 p-4 rounded-2xl bg-red-950/90 border-2 border-red-500 shadow-[0_0_50px_rgba(239,68,68,0.4)] flex flex-col md:flex-row justify-between items-center gap-4 animate-pulse">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl animate-bounce">🚨</span>
-            <div>
-              <div className="text-red-400 font-mono font-bold text-xs uppercase tracking-widest">
-                INCIDENTE GLOBAL IMPREVISTO EN TIEMPO REAL
-              </div>
-              <h2 className="text-lg md:text-xl font-orbitron font-black text-white">
-                {gameState.activeEmergency.title}
-              </h2>
-              <p className="text-xs text-gray-300 font-sans mt-0.5">
-                {gameState.activeEmergency.context}
-              </p>
-            </div>
-          </div>
-          <div className="bg-black/60 border border-red-800 px-4 py-2 rounded-xl text-center shrink-0">
-            <span className="text-[10px] text-gray-400 font-mono uppercase block">Gabinete de Crisis</span>
-            <span className="text-lg font-orbitron font-bold text-amber-300">
-              {gameState.emergencyDecidedCount || 0} / {gameState.totalPlayers || 0} listas
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* Grid de 3 Columnas Proyectables */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch mb-4">
-        {/* Columna Izquierda: Ranking Corporativo en Vivo */}
-        <div className="lg:col-span-3 min-h-[400px]">
+      {/* Contenido Central: 3 Columnas Proyectables */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 my-6 flex-1 items-stretch">
+        
+        {/* Columna Izquierda (3 cols): Ranking de Empresas */}
+        <div className="lg:col-span-4 h-full">
           <CompanyRankings companies={companies} />
         </div>
 
-        {/* Columna Central: Mapa Geopolítico y Feed de Alertas */}
-        <div className="lg:col-span-6 flex flex-col space-y-4">
-          <div className="flex-1 bg-neoterra-navy/40 rounded-2xl border border-cyan-800/30 p-4 relative overflow-hidden backdrop-blur-md min-h-[340px]">
+        {/* Columna Central (5 cols): Mapa y Eventos */}
+        <div className="lg:col-span-5 flex flex-col gap-6 h-full">
+          <div className="flex-1 min-h-[260px] bg-white rounded-lg shadow-paper border border-sand-border p-2">
             <WorldMap />
           </div>
-          <div className="h-44">
+          <div className="h-56">
             <LiveEventsFeed events={events} />
           </div>
         </div>
 
-        {/* Columna Derecha: Las 7 Variables Globales del Planeta */}
-        <div className="lg:col-span-3 min-h-[400px]">
+        {/* Columna Derecha (3 cols): Variables Globales */}
+        <div className="lg:col-span-3 h-full">
           <GlobalMetricsPanel metrics={globalWorld} />
         </div>
+
       </div>
 
-      {/* Barra Inferior de Noticias */}
-      <footer className="bg-slate-950 border border-cyan-900/40 rounded-xl p-2.5 flex items-center gap-3 font-mono text-xs">
-        <span className="bg-cyan-500 text-black px-2 py-0.5 rounded font-bold text-[10px] uppercase shrink-0">
-          NOTICIAS
-        </span>
-        <div className="overflow-hidden whitespace-nowrap text-slate-300">
-          {gameState?.recentNews && gameState.recentNews.length > 0 ? (
-            <span>{gameState.recentNews[gameState.recentNews.length - 1].headline} — {gameState.recentNews[gameState.recentNews.length - 1].body}</span>
-          ) : (
-            <span>Sistema en monitoreo de variables planetarias. Conexión de corporaciones multinacionales activa.</span>
-          )}
-        </div>
+      {/* Pie de Página */}
+      <footer className="pt-4 border-t border-sand-border flex justify-between items-center text-xs text-ink-faint font-mono">
+        <span>SALA: {gameId} • ESTADO: {gameState?.state?.toUpperCase() || 'EN LÍNEA'}</span>
+        <span>Universidad 2045 • Gobernanza Sistémica y Sostenibilidad</span>
       </footer>
+
     </div>
   );
 }

@@ -14,26 +14,26 @@ interface ButtonProps extends HTMLMotionProps<"button"> {
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', children, ...props }, ref) => {
-    const baseStyles = "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 disabled:pointer-events-none disabled:opacity-50 cursor-pointer";
+    const baseStyles = "inline-flex items-center justify-center rounded text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-moss disabled:pointer-events-none disabled:opacity-40 cursor-pointer font-sans";
     
     const variants = {
-      primary: "bg-cyan-600 text-white hover:bg-cyan-500 shadow-[0_0_15px_rgba(8,145,178,0.5)] border border-cyan-400",
-      secondary: "bg-slate-800 text-cyan-400 hover:bg-slate-700 border border-slate-600",
-      ghost: "hover:bg-slate-800 text-slate-300 hover:text-cyan-400",
-      danger: "bg-red-900 text-red-200 hover:bg-red-800 border border-red-700 shadow-[0_0_15px_rgba(153,27,27,0.5)]",
+      primary: "bg-moss text-paper hover:bg-moss-light border border-moss-dark shadow-subtle",
+      secondary: "bg-sand-100 text-ink hover:bg-white border border-sand-border",
+      ghost: "hover:bg-sand-100 text-ink-muted hover:text-ink",
+      danger: "bg-terracotta text-paper hover:bg-terracotta-dark border border-terracotta-dark",
     };
 
     const sizes = {
-      sm: "h-9 px-3 text-xs",
+      sm: "h-8 px-3 text-xs",
       md: "h-10 px-4 py-2",
-      lg: "h-11 px-8 text-base",
+      lg: "h-12 px-6 text-sm uppercase tracking-wider",
     };
 
     return (
       <motion.button
         ref={ref}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
         className={cn(baseStyles, variants[variant], sizes[size], className)}
         {...props}
       >

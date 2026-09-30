@@ -1,6 +1,9 @@
 'use client';
+
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft, ArrowRight, ShieldCheck, Compass, Settings2 } from 'lucide-react';
 
 export default function AdminLandingPage() {
   const router = useRouter();
@@ -9,7 +12,7 @@ export default function AdminLandingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://neo-terra-backend.onrender.com';
 
   const handleCreateGame = async () => {
     setLoading(true);
@@ -26,10 +29,10 @@ export default function AdminLandingPage() {
       if (res.ok && data.gameId) {
         router.push(`/admin/${data.gameId}`);
       } else {
-        setError(data.error || 'Error al crear la sesión en el servidor');
+        setError(data.error || 'No fue posible crear la sesión en el servidor central.');
       }
     } catch (err: any) {
-      setError(`No se pudo conectar al backend (${backendUrl}). Verifica que el servidor esté activo.`);
+      setError(`Error de comunicación con el nodo (${backendUrl}). Verifica que el servicio esté en línea.`);
     } finally {
       setLoading(false);
     }
@@ -42,76 +45,115 @@ export default function AdminLandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neoterra-dark text-white flex flex-col items-center justify-center p-6 font-inter relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-950/20 via-neoterra-dark to-neoterra-dark pointer-events-none" />
-
-      <div className="z-10 max-w-lg w-full bg-slate-900/80 p-8 rounded-2xl border border-cyan-800/50 backdrop-blur-xl shadow-[0_0_40px_rgba(0,212,255,0.15)]">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-black font-orbitron text-neoterra-cyan tracking-wider mb-2">
-            PANEL DEL EXPOSITOR
-          </h1>
-          <p className="text-xs font-mono text-gray-400 uppercase tracking-widest">
-            Control de Simulación Global 2045
-          </p>
-        </div>
-
-        {error && (
-          <div className="mb-6 p-4 rounded-xl bg-red-950/50 border border-red-700/60 text-red-300 text-xs font-mono">
-            ⚠️ {error}
+    <div className="min-h-screen bg-paper text-ink font-sans selection:bg-moss-soft selection:text-moss-dark flex flex-col justify-between">
+      {/* Cabecera */}
+      <header className="border-b border-sand-border bg-paper/90 backdrop-blur sticky top-0 z-30">
+        <div className="max-w-6xl mx-auto px-6 h-18 py-4 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 text-ink-muted hover:text-ink transition-colors text-xs font-mono uppercase tracking-wider">
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Volver al Portal Principal</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-moss" />
+            <span className="font-serif text-lg text-ink font-normal">NEO-TERRA</span>
+            <span className="text-[10px] font-mono text-ink-faint uppercase">/ Facilitación</span>
           </div>
-        )}
+        </div>
+      </header>
 
-        {/* Crear nueva sesión */}
-        <div className="space-y-4 mb-8 pb-8 border-b border-gray-800">
-          <h2 className="text-sm font-bold text-neoterra-gold uppercase tracking-wider font-mono">
-            Nueva Sesión de Simulación
-          </h2>
-          <div>
-            <label className="block text-xs text-gray-400 mb-1 font-mono">
-              Cantidad de Rondas (Recomendado: 6 a 10)
-            </label>
-            <input
-              type="number"
-              min="3"
-              max="10"
-              value={rounds}
-              onChange={(e) => setRounds(Number(e.target.value))}
-              className="w-full bg-slate-950/70 border border-cyan-800 rounded-lg p-3 text-white font-mono focus:outline-none focus:border-cyan-400"
-            />
+      {/* Contenido Central */}
+      <main className="max-w-3xl mx-auto px-6 py-16 w-full flex-1 flex flex-col justify-center">
+        <div className="border border-sand-border bg-white p-8 sm:p-12 rounded-lg shadow-paper">
+          <div className="mb-8 pb-6 border-b border-sand-border">
+            <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-moss font-semibold mb-2">
+              <Settings2 className="w-3.5 h-3.5" />
+              <span>Gabinete de Facilitación Pedagógica</span>
+            </div>
+            <h1 className="font-serif text-3xl sm:text-4xl text-ink font-normal tracking-tight">
+              Gestión de Sesiones de Simulación
+            </h1>
+            <p className="text-sm text-ink-muted mt-2 font-light leading-relaxed">
+              Configura los ciclos de juego para el aula o reanuda una sesión activa para moderar los dilemas y eventos de gobernanza.
+            </p>
           </div>
 
-          <button
-            onClick={handleCreateGame}
-            disabled={loading}
-            className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3.5 px-4 rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.4)] disabled:opacity-50 transition-all font-mono uppercase tracking-wider text-sm active:scale-95"
-          >
-            {loading ? 'Inicializando en Servidor...' : '🚀 Crear Nueva Sesión'}
-          </button>
-        </div>
+          {error && (
+            <div className="mb-6 p-4 rounded border border-terracotta/40 bg-terracotta-soft text-terracotta-dark text-xs leading-relaxed flex items-start gap-2">
+              <span className="font-bold">Aviso:</span>
+              <span>{error}</span>
+            </div>
+          )}
 
-        {/* Entrar a sesión existente */}
-        <div className="space-y-4">
-          <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider font-mono">
-            Reanudar Sesión Existente
-          </h2>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Código o ID de sesión"
-              value={existingCode}
-              onChange={(e) => setExistingCode(e.target.value)}
-              className="flex-1 bg-slate-950/70 border border-gray-800 rounded-lg p-3 text-white font-mono text-sm focus:outline-none focus:border-cyan-400"
-            />
+          {/* Bloque 1: Crear Nueva Sesión */}
+          <div className="space-y-4 mb-10 pb-10 border-b border-sand-border">
+            <div className="flex items-center justify-between">
+              <h2 className="font-serif text-xl text-ink font-normal flex items-center gap-2">
+                <span>01.</span>
+                <span>Configurar Nueva Sala</span>
+              </h2>
+              <span className="text-[11px] font-mono text-moss bg-moss-soft px-2.5 py-0.5 rounded border border-moss/20">
+                Recomendado
+              </span>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
+                Cantidad de Rondas / Ciclos de Decisión (6 a 10)
+              </label>
+              <input
+                type="number"
+                min="3"
+                max="10"
+                value={rounds}
+                onChange={(e) => setRounds(Number(e.target.value))}
+                className="w-full bg-sand-50 border border-sand-border focus:border-moss focus:bg-white text-ink rounded p-3 font-mono text-base transition-colors"
+              />
+              <p className="text-[11px] text-ink-faint mt-1.5">
+                Cada ronda representa 2 años cronológicos de transformaciones geopolíticas y regulatorias (Horizonte 2045).
+              </p>
+            </div>
+
             <button
-              onClick={handleJoinExisting}
-              disabled={!existingCode.trim()}
-              className="bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono text-xs px-4 py-3 rounded-lg border border-cyan-900 disabled:opacity-40 transition-colors uppercase font-bold"
+              onClick={handleCreateGame}
+              disabled={loading}
+              className="w-full bg-moss hover:bg-moss-light disabled:opacity-40 text-paper font-medium py-3.5 px-6 rounded transition-all duration-200 border border-moss-dark flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
             >
-              Abrir
+              {loading ? 'Inicializando Sesión en el Nodo...' : 'Crear Sala e Iniciar Simulación'}
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
+
+          {/* Bloque 2: Reanudar Sesión */}
+          <div className="space-y-4">
+            <h2 className="font-serif text-xl text-ink font-normal flex items-center gap-2">
+              <span>02.</span>
+              <span>Reanudar o Moderar Sesión Existente</span>
+            </h2>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="text"
+                placeholder="Código de Sala (ej. ALPHA7)"
+                value={existingCode}
+                onChange={(e) => setExistingCode(e.target.value.toUpperCase())}
+                className="flex-1 bg-sand-50 border border-sand-border focus:border-moss focus:bg-white text-ink rounded p-3 font-mono text-sm uppercase tracking-widest transition-colors"
+              />
+              <button
+                onClick={handleJoinExisting}
+                disabled={!existingCode.trim()}
+                className="bg-sand-100 hover:bg-white text-ink font-medium px-6 py-3 rounded border border-sand-border hover:border-moss text-xs uppercase tracking-wider transition-colors disabled:opacity-40"
+              >
+                Abrir Panel
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-sand-border py-6 text-center text-xs text-ink-faint font-mono">
+        NEO-TERRA 2045 • Laboratorio de Simulación y Gobernanza Consciente
+      </footer>
     </div>
   );
 }

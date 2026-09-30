@@ -1,4 +1,5 @@
 'use client';
+
 import React from 'react';
 import { motion } from 'framer-motion';
 
@@ -6,20 +7,25 @@ export default function CompanyRankings({ companies }: { companies: any[] }) {
   const sorted = [...(companies || [])].sort((a, b) => (b.capital || 0) - (a.capital || 0));
 
   return (
-    <div className="bg-neoterra-navy/60 p-5 rounded-2xl border border-cyan-800/40 h-full backdrop-blur-md flex flex-col font-inter">
-      <div className="flex justify-between items-center mb-4 border-b border-cyan-900/60 pb-3">
-        <h2 className="font-orbitron text-lg font-black text-neoterra-cyan tracking-wider">
-          RANKING CORPORATIVO
-        </h2>
-        <span className="text-[11px] font-mono text-gray-400">
-          {sorted.length} {sorted.length === 1 ? 'empresa' : 'empresas'}
+    <div className="bg-white p-6 rounded-lg border border-sand-border shadow-paper h-full flex flex-col font-sans">
+      <div className="flex justify-between items-center mb-4 border-b border-sand-border pb-3">
+        <div>
+          <span className="text-[10px] font-mono tracking-widest uppercase text-moss font-semibold block">
+            LIBRO MAYOR ABIERTO
+          </span>
+          <h2 className="font-serif text-xl text-ink font-normal mt-0.5">
+            Ranking Corporativo
+          </h2>
+        </div>
+        <span className="text-xs font-mono bg-sand-100 px-2.5 py-1 rounded border border-sand-border text-ink-muted">
+          {sorted.length} {sorted.length === 1 ? 'entidad' : 'entidades'}
         </span>
       </div>
 
-      <div className="space-y-3 flex-1 overflow-y-auto pr-1">
+      <div className="space-y-2.5 flex-1 overflow-y-auto pr-1">
         {sorted.length === 0 && (
-          <div className="text-center py-12 text-gray-500 font-mono text-xs italic">
-            Esperando la conexión de corporaciones...
+          <div className="text-center py-16 text-ink-faint font-mono text-xs italic border border-dashed border-sand-border rounded p-6">
+            Aguardando conexión de corporaciones en sala...
           </div>
         )}
 
@@ -32,32 +38,32 @@ export default function CompanyRankings({ companies }: { companies: any[] }) {
             <motion.div
               key={company.id || index}
               layout
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex items-center justify-between bg-slate-950/80 p-3 rounded-xl border border-slate-800 hover:border-cyan-900 transition-all"
+              className="flex items-center justify-between bg-sand-50/70 hover:bg-white p-3.5 rounded border border-sand-border transition-colors"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <span className={`font-mono font-black text-sm w-5 text-center ${
-                  index === 0 ? 'text-amber-400' : index === 1 ? 'text-slate-300' : index === 2 ? 'text-amber-600' : 'text-gray-500'
+                <span className={`font-serif font-bold text-sm w-5 text-center ${
+                  index === 0 ? 'text-amber-700' : index === 1 ? 'text-ink' : index === 2 ? 'text-terracotta' : 'text-ink-faint'
                 }`}>
-                  {index + 1}
+                  {index + 1}.
                 </span>
                 <div className="min-w-0">
-                  <div className="font-bold text-sm text-white truncate font-inter">
+                  <div className="font-medium text-sm text-ink truncate">
                     {company.name}
                   </div>
-                  <div className="text-[10px] text-cyan-400/80 font-mono uppercase truncate">
+                  <div className="text-[10px] text-moss font-mono uppercase truncate">
                     {company.archetype || 'En Carrera'}
                   </div>
                 </div>
               </div>
 
-              <div className="text-right shrink-0 ml-2">
-                <div className="text-emerald-400 font-mono font-bold text-sm">
+              <div className="text-right shrink-0 ml-3">
+                <div className="text-ink font-mono font-bold text-sm">
                   ${capitalMillion}M
                 </div>
-                <div className="text-[10px] text-purple-300 font-mono">
-                  ESG: <strong className="text-white">{company.esgIndex || 40}</strong>
+                <div className="text-[10px] text-ink-muted font-mono">
+                  ESG: <strong className="text-ink">{company.esgIndex || 40}</strong>
                 </div>
               </div>
             </motion.div>

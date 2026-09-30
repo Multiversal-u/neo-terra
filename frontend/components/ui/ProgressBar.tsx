@@ -18,11 +18,11 @@ export const ProgressBar = React.forwardRef<HTMLDivElement, ProgressBarProps>(
     return (
       <div
         ref={ref}
-        className={cn("relative h-2 w-full overflow-hidden rounded-full bg-slate-800/80", className)}
+        className={cn("relative h-1.5 w-full overflow-hidden rounded-full bg-sand-200", className)}
         {...props}
       >
         <motion.div
-          className={cn("h-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.8)]", indicatorClassName)}
+          className={cn("h-full bg-moss", indicatorClassName)}
           initial={{ width: 0 }}
           animate={{ width: `${clampedValue}%` }}
           transition={{ duration: 0.5, ease: "easeOut" }}

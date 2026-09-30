@@ -15,14 +15,14 @@ interface GaugeProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const Gauge = React.forwardRef<HTMLDivElement, GaugeProps>(
-  ({ className, value, size = 120, strokeWidth = 10, color = "#06b6d4", ...props }, ref) => {
+  ({ className, value, size = 120, strokeWidth = 8, color = "#2D3A29", ...props }, ref) => {
     const radius = (size - strokeWidth) / 2;
     const circumference = radius * 2 * Math.PI;
     const clampedValue = Math.min(100, Math.max(0, value));
     const offset = circumference - (clampedValue / 100) * circumference;
 
     return (
-      <div ref={ref} className={cn("relative flex items-center justify-center", className)} {...props} style={{ width: size, height: size }}>
+      <div ref={ref} className={cn("relative flex items-center justify-center font-sans", className)} {...props} style={{ width: size, height: size }}>
         <svg width={size} height={size} className="transform -rotate-90">
           {/* Background Circle */}
           <circle
@@ -30,7 +30,7 @@ export const Gauge = React.forwardRef<HTMLDivElement, GaugeProps>(
             cy={size / 2}
             r={radius}
             fill="transparent"
-            stroke="rgba(30, 41, 59, 0.5)" // slate-800/50
+            stroke="#EAE5D9"
             strokeWidth={strokeWidth}
           />
           {/* Progress Circle */}
@@ -46,11 +46,10 @@ export const Gauge = React.forwardRef<HTMLDivElement, GaugeProps>(
             animate={{ strokeDashoffset: offset }}
             transition={{ duration: 1, ease: "easeOut" }}
             strokeLinecap="round"
-            style={{ filter: `drop-shadow(0 0 8px ${color})` }}
           />
         </svg>
-        <div className="absolute flex flex-col items-center justify-center text-slate-200">
-          <span className="text-xl font-bold font-mono">{Math.round(clampedValue)}%</span>
+        <div className="absolute flex flex-col items-center justify-center text-ink">
+          <span className="text-xl font-mono font-bold">{Math.round(clampedValue)}%</span>
         </div>
       </div>
     );

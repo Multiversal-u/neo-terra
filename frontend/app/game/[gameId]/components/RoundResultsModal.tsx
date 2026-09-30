@@ -1,5 +1,7 @@
 'use client';
+
 import React from 'react';
+import { Newspaper, ArrowRight, ShieldCheck, GitFork } from 'lucide-react';
 
 interface RoundResultsModalProps {
   onClose: () => void;
@@ -16,41 +18,39 @@ export default function RoundResultsModal({
 }: RoundResultsModalProps) {
   const story = narrative?.story || 'Tu corporación ejecutó las directivas del ciclo. El mercado global asimiló el impacto de la oferta tecnológica y los reguladores monitorean el comportamiento de las cadenas de valor.';
   const cascade = narrative?.cascade || [
-    'Directiva estratégica implementada',
-    'Reacción de competidores en el mercado',
-    'Ajuste en la demanda de los consumidores',
-    'Resultado financiero y reputacional consolidado',
+    'Directiva estratégica implementada en la cadena de suministro',
+    'Reacción de competidores en mercados transfronterizos',
+    'Ajuste en la demanda de los consumidores según índice ESG',
+    'Resultado financiero y balance de reputación consolidado',
   ];
   const newsList = results?.newsItems || [];
 
   return (
-    <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4 font-inter">
-      <div className="bg-slate-900/95 border border-cyan-500/40 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-[0_0_60px_rgba(6,182,212,0.25)] animate-in zoom-in-95 duration-300 p-6 md:p-8 space-y-6">
+    <div className="fixed inset-0 bg-ink/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 font-sans animate-fade-in-up">
+      <div className="bg-white border border-sand-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-elevated p-6 sm:p-8 space-y-6">
         
         {/* Cabecera de la Crónica */}
-        <div className="text-center space-y-1.5 border-b border-slate-800 pb-4">
-          <div className="inline-block px-3 py-1 bg-cyan-950 border border-cyan-700 text-cyan-300 text-[10px] font-mono font-bold tracking-widest rounded-full uppercase">
-            INFORME DE INTELIGENCIA CORPORATIVA // AÑO {narrative?.year || 2045}
+        <div className="text-center space-y-1.5 border-b border-sand-border pb-5">
+          <div className="inline-block px-3 py-0.5 bg-sand-100 border border-sand-border text-ink-muted text-[10px] font-mono font-bold tracking-widest rounded uppercase">
+            INFORME DE INTELIGENCIA CORPORATIVA // CICLO {narrative?.round || 1}
           </div>
-          <h2 className="text-2xl md:text-3xl font-black font-orbitron text-white uppercase tracking-wider">
-            Crónica del Ciclo {narrative?.round || 1}
+          <h2 className="text-2xl sm:text-3xl font-serif text-ink font-normal tracking-tight">
+            Crónica de Consecuencias
           </h2>
-          <p className="text-slate-400 font-mono text-xs">
-            Evaluación de consecuencias para <strong className="text-cyan-400">{companyName || 'tu empresa'}</strong>
+          <p className="text-xs font-mono text-ink-muted">
+            Dictamen sistémico para <strong className="text-ink">{companyName || 'tu empresa'}</strong>
           </p>
         </div>
 
         {/* 1. La Narrativa Personalizada de tu Empresa */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-            <h3 className="text-xs font-bold text-cyan-400 uppercase tracking-widest font-mono">
-              Qué ocurrió tras tu decisión ({narrative?.chosenOptionName || 'Directiva Ejecutada'})
-            </h3>
-          </div>
+          <h3 className="text-xs font-semibold text-moss uppercase tracking-wider font-mono flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-moss" />
+            <span>Impacto Directo de tu Elección ({narrative?.chosenOptionName || 'Directiva'})</span>
+          </h3>
 
-          <div className="bg-slate-950/90 p-4 md:p-5 rounded-2xl border-l-4 border-cyan-500 border-t border-r border-b border-slate-800 shadow-inner">
-            <p className="text-xs md:text-sm text-slate-200 font-sans leading-relaxed">
+          <div className="bg-sand-50 p-5 rounded border-l-2 border-moss border border-sand-border">
+            <p className="text-sm text-ink-muted leading-relaxed font-light">
               {story}
             </p>
           </div>
@@ -58,18 +58,18 @@ export default function RoundResultsModal({
 
         {/* 2. El Efecto en Cascada */}
         <div className="space-y-2">
-          <h3 className="text-xs font-bold text-purple-400 uppercase tracking-widest font-mono flex items-center gap-2">
-            <span>🔗</span>
-            Cadena de Causa y Efecto (Efecto Cascada)
+          <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wider font-mono flex items-center gap-1.5">
+            <GitFork className="w-3.5 h-3.5 text-moss" />
+            <span>Cadena de Causa y Efecto Sistémica</span>
           </h3>
 
-          <div className="bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-2.5 font-mono text-xs">
+          <div className="bg-stone-50 p-4 rounded border border-sand-border space-y-2.5 font-sans text-xs">
             {cascade.map((step: string, idx: number) => (
-              <div key={idx} className="flex items-start gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-purple-950 border border-purple-700 text-purple-300 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+              <div key={idx} className="flex items-start gap-3">
+                <span className="w-5 h-5 rounded bg-sand-200 text-ink text-[10px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">
                   {idx + 1}
                 </span>
-                <span className="text-slate-300 leading-snug">
+                <span className="text-ink-muted leading-relaxed font-light">
                   {step}
                 </span>
               </div>
@@ -77,34 +77,42 @@ export default function RoundResultsModal({
           </div>
         </div>
 
-        {/* 3. Boletín de Noticias Globales */}
+        {/* 3. Noticias Globales del Ciclo */}
         {newsList.length > 0 && (
           <div className="space-y-2">
-            <h3 className="text-xs font-bold text-neoterra-gold uppercase tracking-widest font-mono flex items-center gap-2">
-              <span>📰</span>
-              Titulares de Prensa Global
+            <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wider font-mono flex items-center gap-1.5">
+              <Newspaper className="w-3.5 h-3.5 text-moss" />
+              <span>Titulares del Mercado Internacional</span>
             </h3>
-            <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
-              {newsList.slice(0, 2).map((news: any, idx: number) => (
-                <div key={idx} className="bg-slate-950/60 p-3 rounded-lg border border-slate-800/80 text-xs">
-                  <div className="font-bold text-amber-300 mb-0.5 font-orbitron">{news.headline}</div>
-                  <div className="text-slate-400 text-[11px] leading-tight">{news.body}</div>
+
+            <div className="space-y-2">
+              {newsList.slice(0, 3).map((news: any, idx: number) => (
+                <div key={idx} className="p-3 bg-sand-50 rounded border border-sand-border text-xs">
+                  <div className="font-semibold text-ink font-sans">
+                    {news.headline || news}
+                  </div>
+                  {news.body && (
+                    <p className="text-[11px] text-ink-muted mt-1 font-light leading-relaxed">
+                      {news.body}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Aviso de Espera de Siguiente Ciclo */}
-        <div className="pt-2 flex flex-col items-center justify-center text-center space-y-2 border-t border-slate-800 pt-4">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-950/80 rounded-xl border border-cyan-800/60 font-mono text-xs text-cyan-300">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-            Esperando que el docente inicie la siguiente ronda...
-          </div>
-          <p className="text-[11px] text-gray-500 font-mono">
-            El nuevo dilema estratégico se abrirá automáticamente en tu pantalla.
-          </p>
+        {/* Botón de Continuación */}
+        <div className="pt-2">
+          <button
+            onClick={onClose}
+            className="w-full bg-moss hover:bg-moss-light text-paper font-medium py-3.5 px-6 rounded transition-all duration-200 border border-moss-dark flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
+          >
+            <span>Entendido • Continuar al Siguiente Ciclo</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
+
       </div>
     </div>
   );

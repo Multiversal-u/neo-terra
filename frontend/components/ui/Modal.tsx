@@ -29,44 +29,44 @@ export function Modal({ isOpen, onClose, children, className, title }: ModalProp
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 font-sans">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
+            className="absolute inset-0 bg-ink/60 backdrop-blur-sm cursor-pointer"
           />
           
           {/* Modal Content */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.98, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            exit={{ opacity: 0, scale: 0.98, y: 12 }}
             className={cn(
-              "relative w-full max-w-lg overflow-hidden rounded-2xl border border-cyan-900/50 bg-slate-950/90 p-6 text-slate-200 shadow-[0_0_40px_rgba(8,145,178,0.15)]",
+              "relative w-full max-w-lg overflow-hidden rounded-lg border border-sand-border bg-white p-6 sm:p-8 text-ink shadow-elevated",
               className
             )}
           >
             {title && (
-              <div className="mb-4 border-b border-slate-800 pb-4">
-                <h2 className="text-xl font-semibold tracking-tight text-cyan-400">{title}</h2>
+              <div className="mb-4 border-b border-sand-border pb-3">
+                <h2 className="text-2xl font-serif font-normal tracking-tight text-ink">{title}</h2>
               </div>
             )}
             
             <button
               onClick={onClose}
-              className="absolute right-4 top-4 rounded-full p-1 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer"
+              className="absolute right-4 top-4 rounded p-1 text-ink-muted hover:bg-sand-100 hover:text-ink transition-colors cursor-pointer"
+              aria-label="Cerrar modal"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </button>
-
-            <div className="relative">
-              {children}
-            </div>
+            
+            {children}
           </motion.div>
         </div>
       )}
