@@ -18,12 +18,12 @@ export interface CompanyStats {
 
 export interface GlobalMetrics {
   globalTemperature: number;
-  seaLevelRise: number;
-  atmosphericCO2: number;
-  globalEconomy: number;
-  socialStability: number;
-  resourceAvailability: number;
-  biodiversityIndex: number;
+  economicStability: number;
+  consumerConfidence: number;
+  internationalRegulation: number;
+  globalInnovation: number;
+  socialInequality: number;
+  sustainabilityIndex: number;
 }
 
 export type GameStateEnum = 'LOBBY' | 'PLAYING' | 'ROUND_END' | 'FINISHED';
