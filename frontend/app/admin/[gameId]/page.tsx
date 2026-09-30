@@ -91,6 +91,52 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
     }
   };
 
+  const handleCalculateRound = async () => {
+    setLoading(true);
+    setStatusMsg('Evaluando directivas y generando crónicas de impacto...');
+    try {
+      const res = await fetch(`${backendUrl}/api/admin/${params.gameId}/calculateRound`, {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatusMsg('✓ Ronda evaluada. Crónicas de impacto y titulares publicados en todos los celulares.');
+        fetchGameState();
+      } else {
+        setStatusMsg(`Error: ${data.error || 'No se pudo evaluar la ronda'}`);
+      }
+    } catch (err: any) {
+      setStatusMsg(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEndGame = async () => {
+    if (!confirm('¿Deseas finalizar la simulación? Se evaluarán los arquetipos finales y se revelará el podio de ganadores.')) {
+      return;
+    }
+    setLoading(true);
+    setStatusMsg('Finalizando simulación y clasificando arquetipos de empresas...');
+    try {
+      const res = await fetch(`${backendUrl}/api/admin/${params.gameId}/endGame`, {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatusMsg('✓ Simulación concluida. Podio generado con éxito.');
+        fetchGameState();
+        window.open(`/end/${params.gameId}`, '_blank');
+      } else {
+        setStatusMsg(`Error: ${data.error || 'No se pudo finalizar la simulación'}`);
+      }
+    } catch (err: any) {
+      setStatusMsg(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleTriggerEmergency = async () => {
     setLoading(true);
     setStatusMsg('Activando incidente de emergencia relámpago...');
@@ -143,7 +189,15 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
             <span className="text-neoterra-cyan uppercase">{gameState?.state || 'CARGANDO...'}</span>
           </p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-3">
+          <a
+            href={`/end/${params.gameId}`}
+            target="_blank"
+            rel="noreferrer"
+            className="bg-amber-950/70 hover:bg-amber-900 text-amber-300 border border-amber-500/60 px-4 py-2 rounded-lg font-mono text-sm transition-all flex items-center gap-2 shadow-[0_0_12px_rgba(251,191,36,0.2)] font-bold"
+          >
+            🏆 Podio y Resultados Finales
+          </a>
           <a
             href={`/dashboard/${params.gameId}`}
             target="_blank"
@@ -184,34 +238,52 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
             <button
               onClick={handleStartGame}
               disabled={loading || (gameState?.state && gameState.state !== 'lobby')}
-              className="bg-neoterra-green text-black font-bold py-3.5 px-4 rounded-lg hover:bg-green-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-mono tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.2)]"
+              className="bg-neoterra-green text-black font-bold py-3 px-4 rounded-lg hover:bg-green-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-mono tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.2)]"
             >
-              ▶ 1. INICIALIZAR SIMULACIÓN (Abrir Juego)
+              ▶ 1. INICIALIZAR SIMULACIÓN (Abrir Ronda 1)
+            </button>
+
+            <button
+              onClick={handleCalculateRound}
+              disabled={loading || gameState?.state === 'lobby'}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all font-mono tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center justify-center gap-2"
+            >
+              📊 2. EVALUAR RONDA Y PUBLICAR CRÓNICA (A Celulares)
             </button>
 
             <button
               onClick={handleNextRound}
               disabled={loading}
-              className="bg-neoterra-cyan text-black font-bold py-3.5 px-4 rounded-lg hover:bg-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-mono tracking-wider shadow-[0_0_15px_rgba(0,212,255,0.2)]"
+              className="bg-neoterra-cyan text-black font-bold py-3 px-4 rounded-lg hover:bg-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-mono tracking-wider shadow-[0_0_15px_rgba(0,212,255,0.2)]"
             >
-              ⏭ 2. INICIAR SIGUIENTE RONDA (Enviar a Celulares)
-            </button>
-
-            <button
-              onClick={handlePause}
-              disabled={loading}
-              className="bg-neoterra-red/80 text-white font-bold py-3 px-4 rounded-lg hover:bg-neoterra-red transition-all font-mono tracking-wider"
-            >
-              ⏸ PAUSAR / REANUDAR
+              ⏭ 3. INICIAR SIGUIENTE RONDA (Nuevo Dilema)
             </button>
 
             <button
               onClick={handleTriggerEmergency}
               disabled={loading || !!gameState?.activeEmergency}
-              className="bg-amber-500 hover:bg-amber-400 text-black font-black py-3.5 px-4 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all font-mono tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.3)] flex items-center justify-center gap-2 border border-amber-400"
+              className="bg-amber-500 hover:bg-amber-400 text-black font-black py-3 px-4 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all font-mono tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.3)] flex items-center justify-center gap-2 border border-amber-400"
             >
-              🚨 3. INYECTAR EMERGENCIA RELÁMPAGO (Crisis)
+              🚨 4. INYECTAR EMERGENCIA RELÁMPAGO (Crisis)
             </button>
+
+            <button
+              onClick={handlePause}
+              disabled={loading}
+              className="bg-slate-800 text-gray-300 hover:text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-700 transition-all font-mono text-xs tracking-wider border border-slate-700"
+            >
+              ⏸ PAUSAR / REANUDAR SIMULACIÓN
+            </button>
+
+            <div className="pt-2 border-t border-gray-700/80">
+              <button
+                onClick={handleEndGame}
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 text-black font-black py-3 px-4 rounded-xl transition-all font-mono tracking-wider shadow-[0_0_25px_rgba(251,191,36,0.3)] flex items-center justify-center gap-2"
+              >
+                🏁 5. FINALIZAR SIMULACIÓN Y VER PODIO FINAL
+              </button>
+            </div>
 
             {gameState?.activeEmergency && (
               <div className="p-4 bg-red-950/90 border-2 border-red-500 rounded-xl space-y-2 mt-2">

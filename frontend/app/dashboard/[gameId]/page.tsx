@@ -66,6 +66,32 @@ export default function DashboardPage({ params }: { params: { gameId: string } }
         </div>
       </header>
 
+      {/* Banner de Simulación Concluida */}
+      {gameState?.state === 'finished' && (
+        <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-amber-950 via-slate-900 to-amber-950 border-2 border-amber-500 shadow-[0_0_60px_rgba(251,191,36,0.4)] flex flex-col md:flex-row justify-between items-center gap-4 animate-in zoom-in-95">
+          <div className="flex items-center gap-4">
+            <span className="text-4xl animate-bounce">🏆</span>
+            <div>
+              <div className="text-amber-400 font-mono font-bold text-xs uppercase tracking-widest">
+                SIMULACIÓN GLOBAL CONCLUIDA // LIBRO MAYOR CERRADO
+              </div>
+              <h2 className="text-xl md:text-2xl font-orbitron font-black text-white">
+                TODAS LAS RONDAS HAN FINALIZADO
+              </h2>
+              <p className="text-xs text-gray-300 font-sans mt-0.5">
+                Los arquetipos corporativos han sido dictaminados y el destino de Neo-Terra 2045 está sellado.
+              </p>
+            </div>
+          </div>
+          <a
+            href={`/end/${gameId}`}
+            className="bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black font-black font-orbitron py-3.5 px-6 rounded-xl text-sm tracking-wider shadow-[0_0_20px_rgba(251,191,36,0.6)] shrink-0 flex items-center gap-2 hover:scale-105 transition-all"
+          >
+            <span>👑</span> PROYECTAR PODIO FINAL Y ARQUETIPOS ➔
+          </a>
+        </div>
+      )}
+
       {/* Banner de Emergencia Activa en Pantalla Gigante */}
       {gameState?.activeEmergency && (
         <div className="mb-6 p-4 rounded-2xl bg-red-950/90 border-2 border-red-500 shadow-[0_0_50px_rgba(239,68,68,0.4)] flex flex-col md:flex-row justify-between items-center gap-4 animate-pulse">

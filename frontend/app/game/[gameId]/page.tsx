@@ -61,8 +61,8 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
           setActiveTab('decisions');
         }
 
-        // Si la ronda está calculando o recién concluyó
-        if (gs.state === 'calculating') {
+        // Si la ronda está en resultados o calculando
+        if (gs.state === 'roundResults' || gs.state === 'calculating') {
           setShowResults(true);
         }
       }
@@ -102,7 +102,12 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
       });
 
       if (res.ok) {
+        const data = await res.json();
         setHasSubmitted(true);
+        if (data.result?.narrative) {
+          setCompany((prev: any) => ({ ...prev, lastNarrative: data.result.narrative }));
+        }
+        setShowResults(true);
       } else {
         const err = await res.json();
         alert(`Aviso: ${err.error || 'No se pudo registrar la decisión'}`);
@@ -153,9 +158,18 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="bg-cyan-950 text-cyan-300 px-3 py-1 rounded-lg border border-cyan-800 font-mono text-xs font-bold shadow-[0_0_10px_rgba(6,182,212,0.15)]">
-            {isLobby ? 'SALA DE ESPERA' : `RONDA ${currentRound} DE ${gameState?.maxRounds || 8}`}
-          </div>
+          {gameState?.state === 'finished' ? (
+            <a
+              href={`/end/${gameId}`}
+              className="bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs px-3 py-1.5 rounded-lg font-mono tracking-wider flex items-center gap-1 shadow-[0_0_12px_rgba(251,191,36,0.6)] animate-pulse"
+            >
+              🏆 VER RESULTADOS FINALES
+            </a>
+          ) : (
+            <div className="bg-cyan-950 text-cyan-300 px-3 py-1 rounded-lg border border-cyan-800 font-mono text-xs font-bold shadow-[0_0_10px_rgba(6,182,212,0.15)]">
+              {isLobby ? 'SALA DE ESPERA' : `RONDA ${currentRound} DE ${gameState?.maxRounds || 8}`}
+            </div>
+          )}
         </div>
       </header>
 
@@ -196,7 +210,30 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
             activeTab === 'decisions' ? 'block' : 'hidden md:block'
           } flex-1 overflow-y-auto p-4 md:p-8 bg-slate-950/80 relative scrollbar-thin scrollbar-thumb-cyan-900 h-full`}
         >
-          {showResults ? (
+          {gameState?.state === 'finished' ? (
+            <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-6 font-inter">
+              <div className="w-20 h-20 rounded-full bg-amber-950/80 border-2 border-amber-500 flex items-center justify-center text-4xl shadow-[0_0_35px_rgba(245,158,11,0.5)] animate-bounce">
+                🏆
+              </div>
+              <div className="space-y-2 max-w-md">
+                <span className="text-xs font-mono uppercase bg-amber-950 text-amber-300 border border-amber-800 px-3 py-1 rounded-full font-bold">
+                  SIMULACIÓN CONCLUIDA
+                </span>
+                <h2 className="text-2xl md:text-3xl font-black font-orbitron text-neoterra-gold drop-shadow-md">
+                  VER EVALUACIÓN Y PODIO FINAL
+                </h2>
+                <p className="text-xs text-gray-300 font-mono">
+                  Todas las rondas han finalizado. Conoce el Arquetipo de Negocios asignado a <strong className="text-cyan-400">"{company?.name}"</strong> y la posición final de tu empresa.
+                </p>
+              </div>
+              <a
+                href={`/end/${gameId}`}
+                className="bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black font-black font-orbitron py-4 px-8 rounded-2xl text-sm md:text-base tracking-wider shadow-[0_0_25px_rgba(251,191,36,0.6)] hover:scale-105 transition-all"
+              >
+                🏆 VER MI ARQUETIPO Y RESULTADOS FINALES ➔
+              </a>
+            </div>
+          ) : showResults ? (
             <RoundResultsModal
               onClose={() => setShowResults(false)}
               narrative={company?.lastNarrative}
@@ -230,13 +267,23 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
               <WaitingScreen
                 decidedCount={gameState?.decidedCount}
                 totalCount={gameState?.totalPlayers}
+                onViewNarrative={() => setShowResults(true)}
+                hasNarrative={!!company?.lastNarrative}
               />
-              <div className="text-center">
+              <div className="text-center space-x-3">
+                {company?.lastNarrative && (
+                  <button
+                    onClick={() => setShowResults(true)}
+                    className="text-xs font-mono font-bold bg-cyan-950 border border-cyan-500/60 text-cyan-300 px-3 py-1.5 rounded-lg hover:bg-cyan-900 transition-all shadow-sm"
+                  >
+                    📖 Ver Crónica del Ciclo
+                  </button>
+                )}
                 <button
                   onClick={() => setHasSubmitted(false)}
-                  className="text-xs font-mono text-cyan-400 hover:underline"
+                  className="text-xs font-mono text-gray-400 hover:text-cyan-300 underline"
                 >
-                  ✎ Deseo modificar mis decisiones para esta ronda
+                  ✎ Modificar directivas
                 </button>
               </div>
             </div>

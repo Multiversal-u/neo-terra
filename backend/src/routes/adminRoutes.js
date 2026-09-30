@@ -9,6 +9,32 @@ router.get('/:gameId/dashboard', (req, res) => {
   res.json({ success: true, data: game }); // Admin gets full access
 });
 
+router.post('/:gameId/calculateRound', (req, res) => {
+  const gameManager = req.app.locals.gameManager;
+  const game = gameManager.getGame(req.params.gameId);
+  if (!game) return res.status(404).json({ error: 'Game not found' });
+
+  try {
+    const results = game.calculateRoundResults();
+    res.json({ success: true, results, state: game.getPublicGameState() });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+router.post('/:gameId/endGame', (req, res) => {
+  const gameManager = req.app.locals.gameManager;
+  const game = gameManager.getGame(req.params.gameId);
+  if (!game) return res.status(404).json({ error: 'Game not found' });
+
+  try {
+    const results = game.endGame();
+    res.json({ success: true, finished: true, results, state: game.getPublicGameState() });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 router.post('/:gameId/nextRound', (req, res) => {
   const gameManager = req.app.locals.gameManager;
   const game = gameManager.getGame(req.params.gameId);
@@ -16,10 +42,10 @@ router.post('/:gameId/nextRound', (req, res) => {
   
   try {
     const roundData = game.startRound();
-    if (!roundData) {
-      return res.json({ success: true, finished: true, results: game.endGame() });
+    if (!roundData || roundData.state === 'finished') {
+      return res.json({ success: true, finished: true, results: game.endGame(), state: game.getPublicGameState() });
     }
-    res.json({ success: true, round: roundData });
+    res.json({ success: true, round: roundData, state: game.getPublicGameState() });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

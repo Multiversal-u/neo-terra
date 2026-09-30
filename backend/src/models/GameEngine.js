@@ -91,9 +91,14 @@ class GameEngine {
   }
 
   startRound() {
-    if (this.state === 'finished') return null;
+    if (this.state === 'finished') return this.endGame();
     if (this.currentRound >= this.maxRounds) {
       return this.endGame();
+    }
+
+    // Si la ronda actual estaba activa y hubo decisiones, auto-evaluar antes de avanzar
+    if (this.currentRound > 0 && this.state === 'roundActive' && this.roundDecisions.size > 0) {
+      this.calculateRoundResults();
     }
 
     this.currentRound++;
@@ -193,12 +198,18 @@ class GameEngine {
   // ─── Decisions ────────────────────────────────────────────────────────────
 
   submitDecision(playerId, decision) {
-    if (this.state !== 'roundActive') throw new Error('Round is not active');
+    if (this.state !== 'roundActive' && this.state !== 'playing') throw new Error('Round is not active');
     if (!this.companies.has(playerId)) throw new Error('Player not in game');
     if (this.roundDecisions.has(playerId)) throw new Error('Already submitted');
 
     const validatedDecision = this._validateDecision(decision);
     this.roundDecisions.set(playerId, validatedDecision);
+
+    const company = this.companies.get(playerId);
+    const roundScenario = ROUND_SCENARIOS[this.currentRound] || ROUND_SCENARIOS[1];
+    if (company) {
+      company.lastNarrative = this._buildNarrativeForCompany(company, company, validatedDecision, roundScenario);
+    }
 
     const allIn = this.checkAllDecided();
     return {
@@ -206,6 +217,7 @@ class GameEngine {
       allDecided: allIn,
       decidedCount: this.roundDecisions.size,
       totalCount: this.companies.size,
+      narrative: company?.lastNarrative,
     };
   }
 
@@ -378,7 +390,7 @@ class GameEngine {
       patterns,
     });
 
-    this.state = 'playing';
+    this.state = 'roundResults';
 
     return {
       round: this.currentRound,
@@ -814,6 +826,8 @@ class GameEngine {
       return scoreB - scoreA;
     });
 
+    this.finalRankings = rankings;
+
     return {
       state: 'finished',
       rankings,
@@ -827,18 +841,21 @@ class GameEngine {
 
   getPublicGameState() {
     const roundScenario = ROUND_SCENARIOS[this.currentRound] || ROUND_SCENARIOS[1];
-    const publicCompanies = Array.from(this.companies.values()).map(c => ({
-      id: c.id,
-      name: c.name,
-      playerName: c.playerName,
-      marketShare: c.marketShare,
-      reputation: c.reputation,
-      esgIndex: c.esgIndex,
-      capital: c.capital,
-      techLevel: c.techLevel,
-      archetype: c.archetype || null,
-      hasDecided: this.roundDecisions.has(c.id),
-    }));
+    const publicCompanies = Array.from(this.companies.values()).map(c => {
+      const arch = c.archetype || (this.state === 'finished' ? this.classifyArchetype(c) : null);
+      return {
+        id: c.id,
+        name: c.name,
+        playerName: c.playerName,
+        marketShare: c.marketShare,
+        reputation: c.reputation,
+        esgIndex: c.esgIndex,
+        capital: c.capital,
+        techLevel: c.techLevel,
+        archetype: arch,
+        hasDecided: this.roundDecisions.has(c.id),
+      };
+    });
 
     return {
       gameId: this.gameId,
@@ -848,6 +865,7 @@ class GameEngine {
       currentScenario: roundScenario,
       globalWorld: this.globalWorld,
       companies: publicCompanies,
+      rankings: this.finalRankings || (this.state === 'finished' ? publicCompanies : []),
       decidedCount: this.roundDecisions.size,
       totalPlayers: this.companies.size,
       activeEmergency: this.activeEmergency,
