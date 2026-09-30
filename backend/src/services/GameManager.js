@@ -24,7 +24,15 @@ class GameManagerService {
 
   getGame(gameId) {
     if (!gameId) return null;
-    return this.games.get(gameId.toUpperCase()) || this.games.get(gameId);
+    const key = gameId.toUpperCase();
+    let game = this.games.get(key) || this.games.get(gameId);
+    if (!game) {
+      // Auto-recover so server restarts during live sessions never break ongoing rooms
+      game = new GameEngine(key);
+      game.initGame('host_auto');
+      this.games.set(key, game);
+    }
+    return game;
   }
 
   deleteGame(gameId) {

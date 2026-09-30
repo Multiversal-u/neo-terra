@@ -50,9 +50,9 @@ class GameEngine {
   }
 
   addCompany(playerId, companyName, playerName) {
-    if (this.state !== 'lobby') throw new Error('Game already started');
+    if (this.state === 'finished') throw new Error('La simulación ya ha finalizado');
     if (this.companies.size >= GAME_CONSTANTS.MAX_PLAYERS) {
-      throw new Error(`Maximum players (${GAME_CONSTANTS.MAX_PLAYERS}) reached`);
+      throw new Error(`Límite máximo de empresas (${GAME_CONSTANTS.MAX_PLAYERS}) alcanzado`);
     }
 
     const company = {
@@ -79,9 +79,8 @@ class GameEngine {
   }
 
   startGame() {
-    if (this.companies.size < 1) throw new Error('Need at least 1 player to start');
     this.state = 'playing';
-    this.currentRound = 0;
+    this.startRound(); // Immediately launch Round 1
     return this.getPublicGameState();
   }
 
