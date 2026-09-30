@@ -41,7 +41,7 @@ export function Tooltip({ content, children, className, position = 'top' }: Tool
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.15 }}
             className={cn(
-              "absolute z-50 whitespace-nowrap rounded-md border border-cyan-800/50 bg-slate-900/95 px-3 py-1.5 text-xs text-cyan-50 shadow-[0_0_15px_rgba(8,145,178,0.2)] backdrop-blur-md",
+              "absolute z-50 whitespace-nowrap rounded border border-sand-border bg-ink/90 px-3 py-1.5 text-xs text-paper shadow-elevated backdrop-blur-sm",
               positions[position],
               className
             )}

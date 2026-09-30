@@ -277,7 +277,7 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
             <EmergencyModal
               emergency={gameState.activeEmergency}
               onSubmit={handleEmergencySubmit}
-              feedback={company?.emergencyFeedback}
+              feedback={company?.lastEmergencyFeedback}
             />
           )}
 

@@ -63,7 +63,7 @@ export default function EmergencyModal({ emergency, onSubmit, feedback, onClose 
                 <span>Directiva de Contingencia Ejecutada</span>
               </span>
               <p className="text-xs sm:text-sm text-ink leading-relaxed font-light">
-                {localFeedback}
+                {typeof localFeedback === 'string' ? localFeedback : localFeedback?.feedback || JSON.stringify(localFeedback)}
               </p>
             </div>
 
@@ -98,12 +98,12 @@ export default function EmergencyModal({ emergency, onSubmit, feedback, onClose 
                         •
                       </span>
                       <div className="text-sm font-medium text-ink">
-                        {opt.label || opt.text}
+                        {opt.title || opt.label || opt.text}
                       </div>
                     </div>
-                    {opt.impact && (
+                    {(opt.desc || opt.impact) && (
                       <p className="text-[11px] text-ink-faint font-mono pl-6">
-                        Impacto estimado: {opt.impact}
+                        {opt.desc || opt.impact}
                       </p>
                     )}
                   </div>
