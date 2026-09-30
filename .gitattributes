@@ -1,0 +1,10 @@
+# NEO-TERRA — Git line endings config
+# Normaliza los saltos de línea a LF en todos los archivos de código
+
+* text=auto eol=lf
+
+# Archivos binarios: sin conversión
+*.png binary
+*.jpg binary
+*.ico binary
+*.svg binary
