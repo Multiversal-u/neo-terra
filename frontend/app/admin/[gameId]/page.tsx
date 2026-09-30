@@ -84,6 +84,13 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
         setStatusMsg(`Estado cambiado a: ${data.state}`);
         fetchGameState();
       }
+    } catch (err: any) {
+      setStatusMsg(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleTriggerEmergency = async () => {
     setLoading(true);
     setStatusMsg('Activando incidente de emergencia relámpago...');
