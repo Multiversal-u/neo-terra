@@ -33,12 +33,12 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
       const res = await fetch(`${backendUrl}/api/game/${params.gameId}/start`, {
         method: 'POST',
       });
-      const data = await res.json();
       if (res.ok) {
         setStatusMsg('Simulación iniciada con éxito. Ya puedes abrir la Ronda 1.');
         fetchGameState();
       } else {
-        setStatusMsg(`Aviso: ${data.error || 'No se pudo iniciar'}`);
+        const text = await res.text();
+        setStatusMsg(`Aviso: ${text}`);
       }
     } catch (err: any) {
       setStatusMsg(`Error de conexión: ${err.message}`);
@@ -54,8 +54,8 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
       const res = await fetch(`${backendUrl}/api/admin/${params.gameId}/nextRound`, {
         method: 'POST',
       });
-      const data = await res.json();
       if (res.ok) {
+        const data = await res.json();
         if (data.finished) {
           setStatusMsg('¡La simulación ha finalizado! Revisa la pantalla de resultados.');
         } else {
@@ -63,7 +63,8 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
         }
         fetchGameState();
       } else {
-        setStatusMsg(`Error: ${data.error || 'No se pudo avanzar'}`);
+        const text = await res.text();
+        setStatusMsg(`Error: ${text}`);
       }
     } catch (err: any) {
       setStatusMsg(`Error de conexión: ${err.message}`);

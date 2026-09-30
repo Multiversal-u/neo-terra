@@ -52,10 +52,10 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Rate Limiting
+// High-capacity rate limiter for multiplayer classroom sessions
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 100,
+  limit: 100000, // 100,000 requests allowed for active 30-50 player sessions
   standardHeaders: 'draft-7',
   legacyHeaders: false,
 });
