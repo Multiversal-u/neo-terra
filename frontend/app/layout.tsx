@@ -1,7 +1,14 @@
 import type { Metadata } from 'next'
+import localFont from 'next/font/local'
 import { Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 import { cn } from '@/lib/cn'
+
+const luxia = localFont({
+  src: './fonts/Luxia-Regular.otf',
+  variable: '--font-luxia',
+  display: 'swap',
+})
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -27,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es" className={`${playfair.variable} ${jakarta.variable}`}>
+    <html lang="es" className={`${luxia.variable} ${playfair.variable} ${jakarta.variable}`}>
       <body className={cn(
         'font-sans bg-paper text-ink antialiased min-h-screen selection:bg-moss-soft selection:text-moss-dark'
       )}>

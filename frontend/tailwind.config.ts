@@ -56,10 +56,11 @@ const config: Config = {
         'neoterra-green': '#2D3A29',
       },
       fontFamily: {
-        serif: ['var(--font-serif)', 'Playfair Display', 'Georgia', 'serif'],
+        display: ['var(--font-luxia)', 'var(--font-serif)', 'Playfair Display', 'serif'],
+        serif: ['var(--font-luxia)', 'var(--font-serif)', 'Playfair Display', 'Georgia', 'serif'],
         sans: ['var(--font-sans)', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
         mono: ['var(--font-mono)', 'monospace'],
-        orbitron: ['var(--font-serif)', 'Georgia', 'serif'],
+        orbitron: ['var(--font-luxia)', 'var(--font-serif)', 'Georgia', 'serif'],
         inter: ['var(--font-sans)', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
