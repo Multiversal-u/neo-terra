@@ -3,77 +3,105 @@ import React from 'react';
 
 interface RoundResultsModalProps {
   onClose: () => void;
+  narrative?: any;
+  companyName?: string;
   results?: any;
 }
 
-export default function RoundResultsModal({ onClose, results }: RoundResultsModalProps) {
+export default function RoundResultsModal({
+  onClose,
+  narrative,
+  companyName,
+  results,
+}: RoundResultsModalProps) {
+  const story = narrative?.story || 'Tu corporación ejecutó las directivas del ciclo. El mercado global asimiló el impacto de la oferta tecnológica y los reguladores monitorean el comportamiento de las cadenas de valor.';
+  const cascade = narrative?.cascade || [
+    'Directiva estratégica implementada',
+    'Reacción de competidores en el mercado',
+    'Ajuste en la demanda de los consumidores',
+    'Resultado financiero y reputacional consolidado',
+  ];
   const newsList = results?.newsItems || [];
-  const eventsList = results?.triggeredEvents || [];
 
   return (
-    <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 font-inter">
-      <div className="bg-slate-900/95 border border-cyan-500/40 rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-[0_0_60px_rgba(6,182,212,0.2)] animate-in zoom-in-95 fade-in duration-300 p-6 md:p-8 space-y-6">
+    <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4 font-inter">
+      <div className="bg-slate-900/95 border border-cyan-500/40 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-[0_0_60px_rgba(6,182,212,0.25)] animate-in zoom-in-95 duration-300 p-6 md:p-8 space-y-6">
         
-        {/* Cabecera */}
-        <div className="text-center space-y-2 border-b border-slate-800 pb-5">
-          <div className="inline-block px-3 py-1 bg-cyan-950 border border-cyan-800 text-cyan-300 text-[10px] font-mono font-bold tracking-widest rounded-full mb-1">
-            BOLETÍN DEL MERCADO // NEO-TERRA 2045
+        {/* Cabecera de la Crónica */}
+        <div className="text-center space-y-1.5 border-b border-slate-800 pb-4">
+          <div className="inline-block px-3 py-1 bg-cyan-950 border border-cyan-700 text-cyan-300 text-[10px] font-mono font-bold tracking-widest rounded-full uppercase">
+            INFORME DE INTELIGENCIA CORPORATIVA // AÑO {narrative?.year || 2045}
           </div>
-          <h2 className="text-3xl md:text-4xl font-black font-orbitron text-white uppercase tracking-wider">
-            Ciclo Concluido
+          <h2 className="text-2xl md:text-3xl font-black font-orbitron text-white uppercase tracking-wider">
+            Crónica del Ciclo {narrative?.round || 1}
           </h2>
           <p className="text-slate-400 font-mono text-xs">
-            Evaluación sistémica de las decisiones colectivas
+            Evaluación de consecuencias para <strong className="text-cyan-400">{companyName || 'tu empresa'}</strong>
           </p>
         </div>
 
-        {/* Noticias y Eventos Globales Desencadenados */}
-        <div className="space-y-3">
-          <h3 className="text-xs font-bold text-cyan-400 uppercase tracking-widest font-mono flex items-center gap-2">
-            <span className="w-2 h-2 bg-cyan-400 rounded-full animate-ping" />
-            Noticias Globales de Impacto
-          </h3>
+        {/* 1. La Narrativa Personalizada de tu Empresa */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+            <h3 className="text-xs font-bold text-cyan-400 uppercase tracking-widest font-mono">
+              Qué ocurrió tras tu decisión ({narrative?.chosenOptionName || 'Directiva Ejecutada'})
+            </h3>
+          </div>
 
-          <div className="space-y-3">
-            {newsList.length === 0 ? (
-              <div className="bg-slate-950/70 p-4 rounded-xl border border-slate-800 text-xs text-slate-300 font-mono">
-                Mercados estables. Las regulaciones internacionales monitorean los movimientos de capital sin anomalías mayores detectadas.
-              </div>
-            ) : (
-              newsList.map((news: any, idx: number) => (
-                <div
-                  key={idx}
-                  className="bg-slate-950/80 p-4 rounded-xl border-l-4 border-cyan-500 border-r border-t border-b border-slate-800"
-                >
-                  <h4 className="text-sm font-bold text-neoterra-gold font-orbitron mb-1">
-                    {news.headline}
-                  </h4>
-                  <p className="text-xs text-slate-300 leading-relaxed font-sans">
-                    {news.body}
-                  </p>
-                </div>
-              ))
-            )}
+          <div className="bg-slate-950/90 p-4 md:p-5 rounded-2xl border-l-4 border-cyan-500 border-t border-r border-b border-slate-800 shadow-inner">
+            <p className="text-xs md:text-sm text-slate-200 font-sans leading-relaxed">
+              {story}
+            </p>
           </div>
         </div>
 
-        {/* Explicación Pedagógica del Impacto */}
-        <div className="bg-cyan-950/20 p-4 rounded-2xl border border-cyan-900/60 space-y-2">
-          <h4 className="text-xs font-bold text-cyan-300 uppercase tracking-wider font-mono">
-            💡 Lección Sistémica de la Ronda
-          </h4>
-          <p className="text-xs text-slate-300 leading-relaxed font-sans">
-            Las decisiones corporativas no ocurren en el vacío. Los proveedores de bajo costo generan ahorro inmediato pero acumulan deuda de emisiones y riesgo laboral que tarde o temprano detonan investigaciones internacionales.
-          </p>
+        {/* 2. El Efecto en Cascada */}
+        <div className="space-y-2">
+          <h3 className="text-xs font-bold text-purple-400 uppercase tracking-widest font-mono flex items-center gap-2">
+            <span>🔗</span>
+            Cadena de Causa y Efecto (Efecto Cascada)
+          </h3>
+
+          <div className="bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-2.5 font-mono text-xs">
+            {cascade.map((step: string, idx: number) => (
+              <div key={idx} className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-purple-950 border border-purple-700 text-purple-300 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                  {idx + 1}
+                </span>
+                <span className="text-slate-300 leading-snug">
+                  {step}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
+        {/* 3. Boletín de Noticias Globales */}
+        {newsList.length > 0 && (
+          <div className="space-y-2">
+            <h3 className="text-xs font-bold text-neoterra-gold uppercase tracking-widest font-mono flex items-center gap-2">
+              <span>📰</span>
+              Titulares de Prensa Global
+            </h3>
+            <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
+              {newsList.slice(0, 2).map((news: any, idx: number) => (
+                <div key={idx} className="bg-slate-950/60 p-3 rounded-lg border border-slate-800/80 text-xs">
+                  <div className="font-bold text-amber-300 mb-0.5 font-orbitron">{news.headline}</div>
+                  <div className="text-slate-400 text-[11px] leading-tight">{news.body}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Botón de Continuar */}
-        <div className="pt-4 flex justify-center">
+        <div className="pt-2 flex justify-center">
           <button
             onClick={onClose}
-            className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3.5 px-12 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all uppercase tracking-widest font-mono text-sm active:scale-95 border border-cyan-400"
+            className="w-full sm:w-auto bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3.5 px-12 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all uppercase tracking-widest font-mono text-sm active:scale-95 border border-cyan-400"
           >
-            Comprendido • Continuar
+            Aceptar Consecuencias • Siguiente Ciclo
           </button>
         </div>
       </div>

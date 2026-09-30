@@ -66,6 +66,32 @@ export default function DashboardPage({ params }: { params: { gameId: string } }
         </div>
       </header>
 
+      {/* Banner de Emergencia Activa en Pantalla Gigante */}
+      {gameState?.activeEmergency && (
+        <div className="mb-6 p-4 rounded-2xl bg-red-950/90 border-2 border-red-500 shadow-[0_0_50px_rgba(239,68,68,0.4)] flex flex-col md:flex-row justify-between items-center gap-4 animate-pulse">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl animate-bounce">🚨</span>
+            <div>
+              <div className="text-red-400 font-mono font-bold text-xs uppercase tracking-widest">
+                INCIDENTE GLOBAL IMPREVISTO EN TIEMPO REAL
+              </div>
+              <h2 className="text-lg md:text-xl font-orbitron font-black text-white">
+                {gameState.activeEmergency.title}
+              </h2>
+              <p className="text-xs text-gray-300 font-sans mt-0.5">
+                {gameState.activeEmergency.context}
+              </p>
+            </div>
+          </div>
+          <div className="bg-black/60 border border-red-800 px-4 py-2 rounded-xl text-center shrink-0">
+            <span className="text-[10px] text-gray-400 font-mono uppercase block">Gabinete de Crisis</span>
+            <span className="text-lg font-orbitron font-bold text-amber-300">
+              {gameState.emergencyDecidedCount || 0} / {gameState.totalPlayers || 0} listas
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Grid de 3 Columnas Proyectables */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch mb-4">
         {/* Columna Izquierda: Ranking Corporativo en Vivo */}

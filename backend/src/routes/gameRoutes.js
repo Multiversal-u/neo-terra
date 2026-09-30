@@ -74,6 +74,20 @@ router.post('/:gameId/decision', (req, res) => {
   }
 });
 
+router.post('/:gameId/emergencyDecision', (req, res) => {
+  const { playerId, optionId } = req.body;
+  const gameManager = req.app.locals.gameManager;
+  const game = gameManager.getGame(req.params.gameId);
+  if (!game) return res.status(404).json({ error: 'Game not found' });
+
+  try {
+    const result = game.submitEmergencyDecision(playerId, optionId);
+    res.json({ success: true, result });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 router.get('/:gameId/qr', (req, res) => {
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
   const joinUrl = `${frontendUrl}/?code=${req.params.gameId}`;

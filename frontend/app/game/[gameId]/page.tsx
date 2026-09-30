@@ -5,6 +5,7 @@ import DecisionPanel from './components/DecisionPanel';
 import NewsTickerPanel from './components/NewsTickerPanel';
 import RoundResultsModal from './components/RoundResultsModal';
 import WaitingScreen from './components/WaitingScreen';
+import EmergencyModal from './components/EmergencyModal';
 
 export default function GamePage({ params }: { params: { gameId: string } }) {
   const [playerId, setPlayerId] = useState<string>('');
@@ -114,6 +115,25 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
     }
   };
 
+  // Enviar decisión de emergencia relámpago
+  const handleEmergencySubmit = async (optionId: string) => {
+    try {
+      const res = await fetch(`${backendUrl}/api/game/${gameId}/emergencyDecision`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          playerId,
+          optionId,
+        }),
+      });
+      if (res.ok) {
+        syncState();
+      }
+    } catch (err) {
+      console.error('Error enviando decisión de emergencia:', err);
+    }
+  };
+
   const currentRound = gameState?.currentRound || 0;
   const isLobby = !gameState || gameState.state === 'lobby' || currentRound === 0;
 
@@ -179,6 +199,8 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
           {showResults ? (
             <RoundResultsModal
               onClose={() => setShowResults(false)}
+              narrative={company?.lastNarrative}
+              companyName={company?.name}
               results={{
                 newsItems: gameState?.recentNews,
                 triggeredEvents: gameState?.recentEvents,
@@ -221,12 +243,22 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
           ) : (
             <DecisionPanel
               roundNumber={currentRound}
+              scenario={gameState?.currentScenario}
               onSubmit={handleSubmitDecision}
               submitting={submitting}
             />
           )}
         </main>
       </div>
+
+      {/* Modal de Alerta de Emergencia y Crisis Relámpago */}
+      {gameState?.activeEmergency && (
+        <EmergencyModal
+          emergency={gameState.activeEmergency}
+          onSubmit={handleEmergencySubmit}
+          feedback={company?.lastEmergencyFeedback?.feedback}
+        />
+      )}
 
       {/* Ticker de noticias en vivo */}
       <NewsTickerPanel news={gameState?.recentNews} />

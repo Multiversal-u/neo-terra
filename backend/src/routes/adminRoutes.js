@@ -52,4 +52,31 @@ router.post('/:gameId/injectEvent', (req, res) => {
   res.json({ success: true, injected: true });
 });
 
+router.post('/:gameId/emergency', (req, res) => {
+  const { emergencyId } = req.body;
+  const gameManager = req.app.locals.gameManager;
+  const game = gameManager.getGame(req.params.gameId);
+  if (!game) return res.status(404).json({ error: 'Game not found' });
+
+  try {
+    const emergency = game.triggerEmergency(emergencyId);
+    res.json({ success: true, emergency });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+router.post('/:gameId/resolveEmergency', (req, res) => {
+  const gameManager = req.app.locals.gameManager;
+  const game = gameManager.getGame(req.params.gameId);
+  if (!game) return res.status(404).json({ error: 'Game not found' });
+
+  try {
+    const summary = game.resolveEmergency();
+    res.json({ success: true, summary });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 module.exports = router;

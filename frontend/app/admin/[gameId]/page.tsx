@@ -84,6 +84,39 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
         setStatusMsg(`Estado cambiado a: ${data.state}`);
         fetchGameState();
       }
+  const handleTriggerEmergency = async () => {
+    setLoading(true);
+    setStatusMsg('Activando incidente de emergencia relámpago...');
+    try {
+      const res = await fetch(`${backendUrl}/api/admin/${params.gameId}/emergency`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setStatusMsg(`🚨 EMERGENCIA ACTIVADA: ${data.emergency?.title}`);
+        fetchGameState();
+      } else {
+        const text = await res.text();
+        setStatusMsg(`Aviso: ${text}`);
+      }
+    } catch (err: any) {
+      setStatusMsg(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResolveEmergency = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${backendUrl}/api/admin/${params.gameId}/resolveEmergency`, {
+        method: 'POST',
+      });
+      if (res.ok) {
+        setStatusMsg('✓ Emergencia concluida. Simulación reanudada con éxito.');
+        fetchGameState();
+      }
     } catch (err: any) {
       setStatusMsg(`Error: ${err.message}`);
     } finally {
@@ -164,6 +197,33 @@ export default function AdminPanel({ params }: { params: { gameId: string } }) {
             >
               ⏸ PAUSAR / REANUDAR
             </button>
+
+            <button
+              onClick={handleTriggerEmergency}
+              disabled={loading || !!gameState?.activeEmergency}
+              className="bg-amber-500 hover:bg-amber-400 text-black font-black py-3.5 px-4 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all font-mono tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.3)] flex items-center justify-center gap-2 border border-amber-400"
+            >
+              🚨 3. INYECTAR EMERGENCIA RELÁMPAGO (Crisis)
+            </button>
+
+            {gameState?.activeEmergency && (
+              <div className="p-4 bg-red-950/90 border-2 border-red-500 rounded-xl space-y-2 mt-2">
+                <div className="font-bold text-red-300 font-mono text-xs uppercase flex items-center gap-2">
+                  <span className="w-2 h-2 bg-red-500 rounded-full animate-ping" />
+                  INCIDENTE DE EMERGENCIA ACTIVO EN DISPOSITIVOS
+                </div>
+                <div className="font-bold text-sm text-white font-orbitron">{gameState.activeEmergency.title}</div>
+                <div className="text-xs text-gray-300 font-mono">
+                  Respuestas de crisis recibidas: <strong className="text-amber-300">{gameState.emergencyDecidedCount || 0}</strong> de {gameState.totalPlayers || 0} empresas
+                </div>
+                <button
+                  onClick={handleResolveEmergency}
+                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-xs uppercase font-mono tracking-wider mt-2 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                >
+                  ✓ Concluir Emergencia y Reanudar Simulación
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
