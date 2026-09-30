@@ -30,21 +30,12 @@ export default function WaitingScreen({ decidedCount, totalCount, onViewNarrativ
 
       <div className="text-center space-y-2 max-w-md">
         <h2 className="text-xl md:text-2xl font-black font-orbitron text-white tracking-widest uppercase">
-          Directivas Transmitidas
+          Directivas Bloqueadas y Transmitidas
         </h2>
         <p className="text-slate-400 text-xs font-mono leading-relaxed">
-          Tus decisiones han sido registradas en el libro mayor de Neo-Terra. Esperando que las demás corporaciones completen su ciclo...
+          Tus decisiones están registradas en el libro mayor de Neo-Terra. Esperando que el docente evalúe el ciclo para revelar la crónica de consecuencias globales...
         </p>
       </div>
-
-      {hasNarrative && onViewNarrative && (
-        <button
-          onClick={onViewNarrative}
-          className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-3 px-6 rounded-xl text-xs md:text-sm font-mono tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-2 border border-cyan-400 animate-pulse"
-        >
-          <span>📖</span> VER CRÓNICA DEL CICLO Y CONSECUENCIAS
-        </button>
-      )}
 
       <div className="bg-slate-900/80 border border-cyan-800/50 p-6 rounded-2xl max-w-md w-full backdrop-blur-sm shadow-xl">
         <h3 className="text-xs text-cyan-400 uppercase font-bold mb-3 tracking-widest flex items-center justify-between border-b border-slate-800 pb-2 font-mono">

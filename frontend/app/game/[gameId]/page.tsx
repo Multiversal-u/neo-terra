@@ -107,7 +107,7 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
         if (data.result?.narrative) {
           setCompany((prev: any) => ({ ...prev, lastNarrative: data.result.narrative }));
         }
-        setShowResults(true);
+        setShowResults(false); // Esperar evaluación del docente
       } else {
         const err = await res.json();
         alert(`Aviso: ${err.error || 'No se pudo registrar la decisión'}`);
@@ -263,29 +263,11 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
               </button>
             </div>
           ) : hasSubmitted ? (
-            <div className="space-y-4">
+            <div className="h-full flex items-center justify-center">
               <WaitingScreen
                 decidedCount={gameState?.decidedCount}
                 totalCount={gameState?.totalPlayers}
-                onViewNarrative={() => setShowResults(true)}
-                hasNarrative={!!company?.lastNarrative}
               />
-              <div className="text-center space-x-3">
-                {company?.lastNarrative && (
-                  <button
-                    onClick={() => setShowResults(true)}
-                    className="text-xs font-mono font-bold bg-cyan-950 border border-cyan-500/60 text-cyan-300 px-3 py-1.5 rounded-lg hover:bg-cyan-900 transition-all shadow-sm"
-                  >
-                    📖 Ver Crónica del Ciclo
-                  </button>
-                )}
-                <button
-                  onClick={() => setHasSubmitted(false)}
-                  className="text-xs font-mono text-gray-400 hover:text-cyan-300 underline"
-                >
-                  ✎ Modificar directivas
-                </button>
-              </div>
             </div>
           ) : (
             <DecisionPanel
@@ -301,9 +283,14 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
       {/* Modal de Alerta de Emergencia y Crisis Relámpago */}
       {gameState?.activeEmergency && (
         <EmergencyModal
+          key={gameState.activeEmergency.id || gameState.activeEmergency.title}
           emergency={gameState.activeEmergency}
           onSubmit={handleEmergencySubmit}
-          feedback={company?.lastEmergencyFeedback?.feedback}
+          feedback={
+            company?.lastEmergencyFeedback?.emergencyId === gameState.activeEmergency.id
+              ? company.lastEmergencyFeedback.feedback
+              : undefined
+          }
         />
       )}
 

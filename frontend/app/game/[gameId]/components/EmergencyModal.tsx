@@ -13,6 +13,12 @@ export default function EmergencyModal({ emergency, onSubmit, feedback, onClose 
   const [submitting, setSubmitting] = useState(false);
   const [localFeedback, setLocalFeedback] = useState<any>(feedback || null);
 
+  React.useEffect(() => {
+    setLocalFeedback(feedback || null);
+    setSelectedOption('opt_1');
+    setSubmitting(false);
+  }, [emergency?.id, feedback]);
+
   const handleSubmit = async () => {
     setSubmitting(true);
     try {

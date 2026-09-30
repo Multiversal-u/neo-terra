@@ -140,12 +140,6 @@ export default function EndGamePage({ params }: { params: { gameId: string } }) 
             >
               🖥️ Ver Dashboard
             </a>
-            <a
-              href={`/admin/${gameId}`}
-              className="bg-slate-900 hover:bg-slate-800 text-gray-300 border border-gray-700 px-4 py-2 rounded-xl font-mono text-xs transition-all flex items-center gap-1.5"
-            >
-              ⚙️ Panel del Expositor
-            </a>
           </div>
         </div>
 

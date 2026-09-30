@@ -95,14 +95,15 @@ export default function RoundResultsModal({
           </div>
         )}
 
-        {/* Botón de Continuar */}
-        <div className="pt-2 flex justify-center">
-          <button
-            onClick={onClose}
-            className="w-full sm:w-auto bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3.5 px-12 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all uppercase tracking-widest font-mono text-sm active:scale-95 border border-cyan-400"
-          >
-            Aceptar Consecuencias • Siguiente Ciclo
-          </button>
+        {/* Aviso de Espera de Siguiente Ciclo */}
+        <div className="pt-2 flex flex-col items-center justify-center text-center space-y-2 border-t border-slate-800 pt-4">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-950/80 rounded-xl border border-cyan-800/60 font-mono text-xs text-cyan-300">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+            Esperando que el docente inicie la siguiente ronda...
+          </div>
+          <p className="text-[11px] text-gray-500 font-mono">
+            El nuevo dilema estratégico se abrirá automáticamente en tu pantalla.
+          </p>
         </div>
       </div>
     </div>

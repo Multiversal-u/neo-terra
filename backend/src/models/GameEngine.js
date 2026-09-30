@@ -134,6 +134,10 @@ class GameEngine {
       triggeredAt: Date.now(),
     };
     this.emergencyDecisions.clear();
+    // Limpiar feedback previo en todas las empresas para que la nueva crisis no aparezca contestada
+    for (const comp of this.companies.values()) {
+      comp.lastEmergencyFeedback = null;
+    }
 
     // Broadcast breaking news
     this.newsHistory.push({
@@ -168,6 +172,7 @@ class GameEngine {
     }
 
     company.lastEmergencyFeedback = {
+      emergencyId: this.activeEmergency.id,
       crisisTitle: this.activeEmergency.title,
       chosenOption: opt.title,
       feedback: opt.feedback,
@@ -192,6 +197,9 @@ class GameEngine {
     };
     this.activeEmergency = null;
     this.emergencyDecisions.clear();
+    for (const comp of this.companies.values()) {
+      comp.lastEmergencyFeedback = null;
+    }
     return summary;
   }
 
