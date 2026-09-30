@@ -32,7 +32,7 @@ export default function WorldMap() {
           <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" />
         </circle>
         <circle cx="550" cy="220" r="4" fill="#fbbf24">
-          <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" delay="1s" />
+          <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" begin="1s" />
         </circle>
         <path d="M 250 180 Q 400 150 550 220" fill="none" stroke="#fbbf24" strokeWidth="1" strokeDasharray="5,5">
           <animate attributeName="stroke-dashoffset" from="100" to="0" dur="3s" repeatCount="indefinite" />
