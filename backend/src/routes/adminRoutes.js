@@ -42,8 +42,9 @@ router.post('/:gameId/nextRound', (req, res) => {
   
   try {
     const roundData = game.startRound();
-    if (!roundData || roundData.state === 'finished') {
-      return res.json({ success: true, finished: true, results: game.endGame(), state: game.getPublicGameState() });
+    if (!roundData || roundData.state === 'finished' || game.state === 'finished') {
+      const results = roundData?.state === 'finished' ? roundData : game.endGame();
+      return res.json({ success: true, finished: true, results, state: game.getPublicGameState() });
     }
     res.json({ success: true, round: roundData, state: game.getPublicGameState() });
   } catch (err) {

@@ -8,7 +8,8 @@ import NewsTickerPanel from './components/NewsTickerPanel';
 import RoundResultsModal from './components/RoundResultsModal';
 import WaitingScreen from './components/WaitingScreen';
 import EmergencyModal from './components/EmergencyModal';
-import { Trophy, BarChart2, FileEdit, Clock } from 'lucide-react';
+import { Trophy, BarChart2, FileEdit, Clock, ShieldCheck, AlertTriangle, Globe2, Sparkles, BookOpen, ChevronRight } from 'lucide-react';
+import { getArchetypeMeta } from '@/lib/archetypes';
 
 export default function GamePage({ params }: { params: { gameId: string } }) {
   const [playerId, setPlayerId] = useState<string>('');
@@ -217,28 +218,170 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
           } flex-1 overflow-y-auto p-4 sm:p-8 bg-paper relative h-full`}
         >
           {gameState?.state === 'finished' ? (
-            <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-6 max-w-md mx-auto">
-              <div className="w-16 h-16 rounded border border-sand-border bg-sand-100 flex items-center justify-center text-3xl">
-                🏆
-              </div>
-              <div className="space-y-2">
-                <span className="text-[11px] font-mono uppercase bg-sand-100 text-ink-muted border border-sand-border px-3 py-1 rounded font-semibold">
-                  SIMULACIÓN CONCLUIDA
-                </span>
-                <h2 className="text-2xl font-serif text-ink font-normal mt-2">
-                  Todas las Rondas han Finalizado
-                </h2>
-                <p className="text-sm text-ink-muted font-light leading-relaxed">
-                  El dictamen final y el podio de gobernanza están listos. Consulta tu posición y arquetipo.
-                </p>
-              </div>
-              <Link
-                href={`/end/${gameId}`}
-                className="bg-moss hover:bg-moss-light text-paper font-medium py-3 px-6 rounded text-xs uppercase tracking-wider border border-moss-dark transition-colors"
-              >
-                Abrir Resultados y Podio de la Sala
-              </Link>
-            </div>
+            (() => {
+              const sorted = [...(gameState?.companies || [])].sort((a, b) => (b.compositeScore || 0) - (a.compositeScore || 0));
+              const myRank = company?.finalRank || (sorted.findIndex(c => c.id === playerId) + 1) || 1;
+              const archKey = company?.archetype || (sorted.find(c => c.id === playerId)?.archetype) || 'SobrevivienteMercado';
+              const myArch = getArchetypeMeta(archKey);
+
+              return (
+                <div className="max-w-2xl mx-auto space-y-6 pb-16 animate-fade-in-up font-sans">
+                  
+                  {/* Tarjeta de Posición & Coronación Personal */}
+                  <div className="bg-white border-2 border-moss/40 rounded-lg p-6 sm:p-8 text-center shadow-paper space-y-3">
+                    <div className="text-4xl">
+                      {myRank === 1 ? '👑' : myRank === 2 ? '🥈' : myRank === 3 ? '🥉' : '🏆'}
+                    </div>
+
+                    <div className="inline-block px-3.5 py-1 rounded-full text-[10px] font-mono font-bold tracking-widest uppercase bg-moss-soft text-moss-dark border border-moss/30">
+                      {myRank === 1 ? '1° LUGAR // CAMPEÓN GLOBAL' : myRank === 2 ? '2° LUGAR // SUBCAMPEÓN' : myRank === 3 ? '3° LUGAR // TERCER PUESTO' : `PUESTO #${myRank} DE ${gameState?.totalPlayers || sorted.length}`}
+                    </div>
+
+                    <h2 className="font-serif text-2xl sm:text-3xl text-ink font-normal">
+                      {company?.name || 'Tu Consorcio'}
+                    </h2>
+
+                    <p className="text-xs sm:text-sm text-ink-muted font-light leading-relaxed max-w-lg mx-auto">
+                      La simulación ha concluido. El mercado de Neo-Terra evaluó tu equilibrio entre rentabilidad, huella ecológica y ética en la cadena de suministro.
+                    </p>
+
+                    {/* Resumen de Métricas Clave */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-sand-border text-center text-xs font-mono">
+                      <div className="bg-sand-50 p-2.5 rounded border border-sand-border">
+                        <span className="text-[10px] text-ink-faint block uppercase">Capital Final</span>
+                        <strong className="text-ink text-sm">${((company?.capital || 1000000) / 1000000).toFixed(2)}M</strong>
+                      </div>
+                      <div className="bg-sand-50 p-2.5 rounded border border-sand-border">
+                        <span className="text-[10px] text-ink-faint block uppercase">Índice ESG</span>
+                        <strong className="text-moss text-sm">{company?.esgIndex || 40}/100</strong>
+                      </div>
+                      <div className="bg-sand-50 p-2.5 rounded border border-sand-border">
+                        <span className="text-[10px] text-ink-faint block uppercase">Reputación</span>
+                        <strong className="text-ink text-sm">{company?.reputation || 50}/100</strong>
+                      </div>
+                      <div className="bg-sand-50 p-2.5 rounded border border-sand-border">
+                        <span className="text-[10px] text-ink-faint block uppercase">Huella Ecológica</span>
+                        <strong className="text-terracotta text-sm">{company?.environmentalFootprint || 50}/100</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Diagnóstico Exhaustivo de Tu Arquetipo */}
+                  <div className="bg-white border border-sand-border rounded-lg p-6 sm:p-8 shadow-paper space-y-5">
+                    <div className="flex items-center justify-between border-b border-sand-border pb-4">
+                      <div>
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-moss font-semibold block">
+                          TU DIAGNÓSTICO ESTRATÉGICO
+                        </span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-2xl">{myArch.icon}</span>
+                          <h3 className="font-serif text-2xl text-ink font-normal">
+                            {myArch.label}
+                          </h3>
+                        </div>
+                      </div>
+                      <span className={`text-[10px] font-mono uppercase px-2.5 py-0.5 rounded border ${myArch.badgeClass}`}>
+                        {myArch.icon} Clasificado
+                      </span>
+                    </div>
+
+                    {/* Tagline */}
+                    <div className="p-4 bg-moss-soft/60 border border-moss/20 rounded">
+                      <p className="text-xs sm:text-sm font-serif italic text-moss-dark">
+                        "{myArch.tagline}"
+                      </p>
+                    </div>
+
+                    {/* Significado */}
+                    <div className="space-y-1">
+                      <span className="text-[11px] font-mono uppercase text-ink-faint font-semibold block">
+                        ¿Qué Significa tu Arquetipo en la Simulación?
+                      </span>
+                      <p className="text-xs sm:text-sm text-ink-muted font-light leading-relaxed">
+                        {myArch.meaning}
+                      </p>
+                    </div>
+
+                    {/* Fortalezas vs Riesgos */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+                      <div className="bg-sand-50 p-3.5 rounded border border-sand-border space-y-1.5">
+                        <span className="text-[10px] font-mono uppercase text-moss font-bold flex items-center gap-1">
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                          <span>Fortalezas que Demostraste</span>
+                        </span>
+                        <ul className="text-xs text-ink-muted space-y-1 font-light">
+                          {myArch.strengths.map((str, i) => (
+                            <li key={i} className="flex items-start gap-1">
+                              <span className="text-moss font-bold">•</span>
+                              <span>{str}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="bg-sand-50 p-3.5 rounded border border-sand-border space-y-1.5">
+                        <span className="text-[10px] font-mono uppercase text-terracotta font-bold flex items-center gap-1">
+                          <AlertTriangle className="w-3.5 h-3.5" />
+                          <span>Puntos Ciegos y Riesgos</span>
+                        </span>
+                        <ul className="text-xs text-ink-muted space-y-1 font-light">
+                          {myArch.risks.map((rsk, i) => (
+                            <li key={i} className="flex items-start gap-1">
+                              <span className="text-terracotta font-bold">•</span>
+                              <span>{rsk}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    {/* Paralelo del Mundo Real */}
+                    <div className="p-3.5 bg-sand-50 rounded border border-sand-border space-y-1">
+                      <span className="text-[10px] font-mono uppercase text-ink font-semibold flex items-center gap-1">
+                        <Globe2 className="w-3.5 h-3.5 text-moss" />
+                        <span>Caso Análogo en la Economía Real</span>
+                      </span>
+                      <p className="text-xs text-ink-muted font-light leading-relaxed">
+                        {myArch.realWorld}
+                      </p>
+                    </div>
+
+                    {/* Lección y Pregunta de Reflexión */}
+                    <div className="p-4 bg-moss-soft/40 border border-moss/30 rounded space-y-2.5">
+                      <div>
+                        <span className="text-[10px] font-mono uppercase text-moss-dark font-bold block">
+                          LECCIÓN DE GOBERNANZA CONSCIENTE
+                        </span>
+                        <p className="text-xs text-ink font-medium mt-0.5">
+                          {myArch.lesson}
+                        </p>
+                      </div>
+                      <div className="pt-2 border-t border-moss/20">
+                        <span className="text-[10px] font-mono uppercase text-ink-faint font-semibold block">
+                          PREGUNTA DE REFLEXIÓN PARA TU EQUIPO
+                        </span>
+                        <p className="text-xs text-ink-muted italic mt-0.5 font-light">
+                          "{myArch.reflection}"
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Botón para Abrir el Podio de la Sala */}
+                  <div className="pt-2">
+                    <Link
+                      href={`/end/${gameId}`}
+                      className="w-full bg-moss hover:bg-moss-light text-paper font-medium py-4 px-6 rounded text-xs uppercase font-mono tracking-wider border border-moss-dark flex items-center justify-center gap-2 shadow-elevated transition-colors text-center"
+                    >
+                      <Trophy className="w-4 h-4 text-paper" />
+                      <span>Ver el Podio Ceremonial de la Sala (Estilo Kahoot)</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+
+                </div>
+              );
+            })()
           ) : isLobby ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-6 max-w-md mx-auto">
               <div className="w-14 h-14 rounded-full border border-sand-border bg-sand-50 flex items-center justify-center text-moss">

@@ -7,6 +7,9 @@ const {
   SUPPLIERS,
   INVESTMENT_BUDGET_PER_ROUND,
   ROUND_SCENARIOS,
+  FINAL_SCENARIO,
+  getScenarioForRound,
+  ARCHETYPE_PROFILES,
   EMERGENCY_EVENTS,
 } = require('../config/gameConfig');
 const WorldEngine = require('./WorldEngine');
@@ -214,7 +217,7 @@ class GameEngine {
     this.roundDecisions.set(playerId, validatedDecision);
 
     const company = this.companies.get(playerId);
-    const roundScenario = ROUND_SCENARIOS[this.currentRound] || ROUND_SCENARIOS[1];
+    const roundScenario = getScenarioForRound(this.currentRound, this.maxRounds);
     if (company) {
       company.lastNarrative = this._buildNarrativeForCompany(company, company, validatedDecision, roundScenario);
     }
@@ -295,6 +298,7 @@ class GameEngine {
 
   calculateRoundResults() {
     this.state = 'calculating';
+    const roundScenario = getScenarioForRound(this.currentRound, this.maxRounds);
 
     // Snapshot state before this round
     const snapshotBefore = new Map();
@@ -319,16 +323,41 @@ class GameEngine {
         this._applyExpansion(company, decision.expansionTarget);
       }
 
-      // 4. Calculate and add revenue
+      // 4. Apply direct option effects from the scenario & evaluate conditional risks
+      const choice = decision.dilemmaChoice || decision.supplier || 'B';
+      const chosenOpt = (roundScenario?.options || []).find(o => o.id === choice);
+      let triggeredRisk = false;
+      if (chosenOpt) {
+        let appliedEffects = { ...(chosenOpt.effects || {}) };
+        if (
+          chosenOpt.risk &&
+          company[chosenOpt.risk.variable] !== undefined &&
+          company[chosenOpt.risk.variable] < chosenOpt.risk.below
+        ) {
+          appliedEffects = { ...appliedEffects, ...(chosenOpt.risk.effects || {}) };
+          triggeredRisk = true;
+        }
+        for (const [k, v] of Object.entries(appliedEffects)) {
+          if (k === 'capital') {
+            company.capital += v;
+          } else if (company[k] !== undefined) {
+            company[k] = this._clamp(company[k] + v, 0, 100);
+          }
+        }
+      }
+      company._lastTriggeredRisk = triggeredRisk;
+
+      // 5. Calculate and add revenue
       const revenue = this._calculateRevenue(company, this.globalWorld, decision.pricingStrategy);
       company.capital += revenue;
 
-      // 5. Record decision history
+      // 6. Record decision history
       company.supplierHistory.push(decision.supplier);
       company.decisionHistory.push({
         round: this.currentRound,
         ...decision,
-        revenue
+        revenue,
+        triggeredRisk,
       });
 
       // Clamp all 0-100 variables
@@ -414,7 +443,7 @@ class GameEngine {
 
   _buildCompanySummaries(snapshotBefore) {
     const summaries = [];
-    const roundScenario = ROUND_SCENARIOS[this.currentRound] || ROUND_SCENARIOS[1];
+    const roundScenario = getScenarioForRound(this.currentRound, this.maxRounds);
 
     for (const [id, company] of this.companies) {
       const before = snapshotBefore.get(id);
@@ -453,153 +482,36 @@ class GameEngine {
     let story = '';
     let cascade = [];
 
-    if (round === 1) {
-      if (choice === 'A') {
-        story = `Tu decisión de asociarte con GlobalFast Manufacturing redujo tus costos unitarios un 40% y aceleró tus entregas a 48 horas. Sin embargo, periodistas de investigación publicaron un informe satelital que expone descargas de metales pesados y jornadas abusivas en las plantas que fabrican tus componentes. La Comisión Internacional de Ética Comercial abrió un expediente sancionador contra tu corporación.`;
-        cascade = [
-          'Elección de Manufactura Barata en el Sur Global',
-          'Ahorro inicial en costos de producción (+$200,000)',
-          'Filtración en medios de comunicación internacionales',
-          'Caída de Reputación (-15) e impacto negativo en Índice ESG (-12)'
-        ];
-      } else if (choice === 'B') {
-        story = `Al asociarte con el Consorcio CertifiedGlobal, aseguraste el cumplimiento de normas laborales y la certificación Fair Trade. Aunque tus tiempos de entrega fueron más lentos (7 a 10 días) y tus márgenes moderados, tu empresa se mantuvo completamente blindada ante los escándalos que sacudieron a tus competidores más voraces.`;
-        cascade = [
-          'Elección de Cadena con Certificaciones ISO',
-          'Costos predecibles y estabilidad en la entrega',
-          'Inmunidad ante inspecciones regulatorias sorpresa',
-          'Consolidación de confianza con clientes institucionales (+8)'
-        ];
-      } else {
-        story = `Tu apuesta por el Ecosistema Autónomo 100% Renovable implicó un desembolso financiero sustancial, pero te posicionó de inmediato como el referente indiscutible de la economía limpia en Neo-Terra. Los fondos de inversión verde catalogaron a tu empresa con calificación ESG Triple A, abriéndote contratos prioritarios en los mercados más exigentes.`;
-        cascade = [
-          'Inversión en Robótica Solar y Reciclaje de Minerales',
-          'Desembolso inicial de capital con márgenes ajustados',
-          'Reconocimiento mundial de sostenibilidad (Índice ESG a la cabeza)',
-          'Acceso preferencial a licitaciones gubernamentales de alto valor'
-        ];
-      }
-    } else if (round === 2) {
-      if (choice === 'A') {
-        story = `La automatización agresiva del 70% de tus operaciones disparó tu margen bruto en cifras récord. No obstante, las calles de las ciudades fabriles ardieron en protestas. Sindicatos globales convocaron a un boicot coordinado en redes contra tus productos, y la moral de tu personal técnico cayó en picada.`;
-        cascade = [
-          'Despido masivo y reemplazo por IA no supervisada',
-          'Incremento masivo del margen operativo a corto plazo',
-          'Huelgas y protestas en centros de distribución clave',
-          'Derrumbe de Relaciones Laborales y advertencia de boicot'
-        ];
-      } else if (choice === 'B') {
-        story = `Tu programa de reconversión híbrida capacitó a cientos de trabajadores para operar junto a la inteligencia artificial. La productividad aumentó un 25% sin generar crisis sociales. Tanto el gobierno como los sindicatos elogiaron tu modelo como un ejemplo de transición justa.`;
-        cascade = [
-          'Implementación de IA colaborativa con re-capacitación',
-          'Inversión educativa para el personal de planta',
-          'Paz social y aumento de eficiencia operativa sostenida',
-          'Lealtad del consumidor y estabilidad institucional'
-        ];
-      } else {
-        story = `El Pacto Social y la negativa a despedir humanos te convirtieron en el empleador más querido y respetado del sector. Sin embargo, competidores con fábricas 100% robotizadas redujeron precios fuertemente, ejerciendo una presión feroz sobre tu rentabilidad.`;
-        cascade = [
-          'Blindaje del empleo y salarios justos garantizados',
-          'Máxima reputación y lealtad incondicional de los empleados',
-          'Pérdida de competitividad en costos frente a rivales robotizados',
-          'Margen financiero ajustado que requiere innovación urgente'
-        ];
-      }
-    } else if (round === 3) {
-      if (choice === 'A') {
-        story = `Tu mudanza a paraísos regulatorios evitó el pago de aranceles de carbono inmediatos. Pero la respuesta internacional fue implacable: la Unión de Naciones declaró un embargo logístico a tus cargueros y bloqueó tus transacciones en divisas centrales. Tu ahorro se transformó en aislamiento comercial.`;
-        cascade = [
-          'Traslado de servidores a jurisdicciones sin ley ecológica',
-          'Evasión temporal de aranceles de carbono',
-          'Retaliación regulatoria internacional con aranceles compensatorios',
-          'Deterioro de Relaciones con Reguladores y riesgo de bloqueo'
-        ];
-      } else if (choice === 'B') {
-        story = `El pago disciplinado de bonos de compensación te permitió seguir operando sin contratiempos legales. Cumpliste formalmente con la ley, aunque organizaciones ambientalistas comenzaron a auditar tus certificados, advirtiendo que comprar bonos no limpia la atmósfera real.`;
-        cascade = [
-          'Adquisición de bonos de carbono de compensación',
-          'Desembolso recurrente de capital sin reconversión estructural',
-          'Cumplimiento de estándares mínimos de exportación',
-          'Escrutinio creciente de la sociedad civil sobre el impacto real'
-        ];
-      } else {
-        story = `Al ejecutar la descarbonización total, tu huella ambiental cayó en picada. Mientras tus competidores enfrentaban multas y aranceles punitivos, tu empresa recibió subsidios de transición verde y una ovación unánime de los consumidores conscientes de todo el mundo.`;
-        cascade = [
-          'Cierre de plantas térmicas y transición a energía limpia',
-          'Gasto extraordinario de capital absorbido con éxito',
-          'Inmunidad absoluta frente a aranceles de carbono de la ONU',
-          'Impulso masivo al Índice ESG y subsidios gubernamentales'
-        ];
-      }
-    } else if (round === 4) {
-      if (choice === 'A') {
-        story = `Tu decisión de no invertir en ciberdefensa fue un error catastrófico. Durante el asedio cuántico global, un malware secuestró tu base de datos de patentes y paralizó tu cadena logística durante 72 horas. La fuga de datos de clientes desató demandas millonarias.`;
-        cascade = [
-          'Omisión de gasto en ciberseguridad para ahorrar fondos',
-          'Infección por ransomware cuántico en servidores centrales',
-          'Pérdida de propiedad intelectual y datos confidenciales',
-          'Pérdida sustancial de capital en rescates y multas por negligencia'
-        ];
-      } else if (choice === 'B') {
-        story = `Tu blindaje cuántico privado repelió los ataques con éxito quirúrgico. Tus sistemas operaron al 100% mientras la mitad de la industria colapsaba. Capturaste clientes desesperados cuyos proveedores habituales estaban caídos.`;
-        cascade = [
-          'Inversión en ciberdefensa cuántica de primer nivel',
-          'Desembolso en infraestructura de seguridad privada',
-          'Continuidad operacional total durante el apagón digital',
-          'Captura de cuota de mercado de competidores hackeados'
-        ];
-      } else {
-        story = `Al liderar la Alianza Abierta de Ciberdefensa, compartiste tus datos de amenazas en tiempo real. Tu generosidad no solo protegió a tu empresa, sino que salvó la red logística de todo el continente. Fuiste nombrado asesor técnico de la alianza global.`;
-        cascade = [
-          'Liberación de protocolos de defensa en código abierto',
-          'Neutralización colectiva del ataque cibernético global',
-          'Reconocimiento gubernamental y prestigio internacional',
-          'Alianza estratégica con reguladores y subida de reputación'
-        ];
-      }
-    } else if (round === 5) {
-      if (choice === 'A') {
-        story = `Tu campaña de greenwashing funcionó durante tres meses, hasta que un consorcio de hackers y periodistas filtró las facturas reales de tus proveedores contaminantes. La indignación fue viral: manifestaciones frente a tus oficinas y cancelación masiva de contratos institucionales.`;
-        cascade = [
-          'Gasto millonario en relaciones públicas y publicidad verde',
-          'Auge temporal de ventas entre consumidores incautos',
-          'Filtración de auditorías forenses que exponen el fraude',
-          'Derrumbe de reputación y apertura de causas judiciales'
-        ];
-      } else if (choice === 'B') {
-        story = `La publicación de auditorías externas verificadas demostró madurez corporativa. Reconociste áreas de mejora sin maquillar cifras. Los mercados premiaron tu honestidad con estabilidad de precios y contratos gubernamentales a largo plazo.`;
-        cascade = [
-          'Apertura de libros contables y auditorías de emisiones',
-          'Escrutinio inicial de la prensa sin consecuencias punitivas',
-          'Validación por evaluadoras internacionales de inversión',
-          'Calificación de riesgo baja y costo de capital reducido'
-        ];
-      } else {
-        story = `La trazabilidad blockchain radical revolucionó el estándar de la industria. Cada cliente puede escanear tu producto y ver el salario del operario y la huella de carbono de cada componente. Creaste una ventaja competitiva imposible de replicar por tus rivales oscuros.`;
-        cascade = [
-          'Trazabilidad criptográfica total de la cadena de valor',
-          'Inversión tecnológica en transparencia radical',
-          'Adopción masiva por la nueva generación de consumidores',
-          'Liderazgo ético mundial y lealtad de marca inquebrantable'
-        ];
-      }
+    // Si se activó un riesgo condicional por decisiones previas
+    const triggeredRisk = company._lastTriggeredRisk && opt?.risk;
+    if (triggeredRisk) {
+      story = opt.risk.story || opt.story || 'Tu directiva provocó consecuencias adversas debido a tus decisiones previas.';
+      cascade = opt.risk.cascade || opt.cascade || [];
+    } else if (opt?.story) {
+      story = opt.story;
+      cascade = opt.cascade || [];
     } else {
-      story = `Tu visión en el ciclo final de Neo-Terra 2045 consolidó tu posición definitiva en los libros de historia económica. Tu balance entre ambición comercial, responsabilidad ambiental y ética tecnológica definió el arquetipo con el que serás recordado.`;
+      story = `Tu corporación implementó la directiva ${opt?.name || choice} durante el ciclo ${round}. El mercado asimiló el impacto y los reguladores continúan supervisando las operaciones.`;
       cascade = [
-        'Decisión final de legado corporativo',
-        'Consolidación de activos y evaluación de impacto histórico',
-        'Dictamen de los tribunales de mercado de Neo-Terra',
-        'Clasificación final de Arquetipo Corporativo'
+        `Directiva estratégica implementada: ${opt?.name || choice}`,
+        'Reacción de mercados y competidores en Neo-Terra',
+        'Ajuste en la demanda e impacto reputacional consolidado',
       ];
     }
 
     return {
       round,
-      year: roundScenario?.year || 2045,
-      scenarioTitle: roundScenario?.title || 'Ciclo Global',
+      year: roundScenario?.year || (2045 + (round - 1) * 2),
+      scenarioTitle: roundScenario?.title || `Ciclo ${round}`,
+      theme: roundScenario?.theme || 'Gobernanza',
+      learningGoal: roundScenario?.learningGoal || 'Evaluación de impacto sistémico',
       chosenOptionName: opt?.name || `Opción ${choice}`,
+      badge: opt?.badge,
+      badgeColor: opt?.badgeColor,
       story,
       cascade,
+      triggeredRisk: !!triggeredRisk,
+      riskLabel: triggeredRisk ? opt.risk.label : null,
     };
   }
 
@@ -862,6 +774,7 @@ class GameEngine {
 
     const rankings = Array.from(this.companies.values()).map(company => {
       company.archetype = this.classifyArchetype(company);
+      company.archetypeProfile = ARCHETYPE_PROFILES[company.archetype] || ARCHETYPE_PROFILES.SobrevivienteMercado;
       company.compositeScore = this.calculateCompositeScore(company);
       return this._sanitizeCompanyForPlayer(company);
     });
@@ -869,11 +782,17 @@ class GameEngine {
     // Ordenar por puntaje global sistémico
     rankings.sort((a, b) => (b.compositeScore || 0) - (a.compositeScore || 0));
 
+    // Añadir rank posicional 1..N
+    rankings.forEach((r, idx) => {
+      r.finalRank = idx + 1;
+    });
+
     this.finalRankings = rankings;
 
     return {
       state: 'finished',
       rankings,
+      archetypeProfiles: ARCHETYPE_PROFILES,
       finalWorldState: this.globalWorld,
       roundHistory: this.roundHistory,
       newsHistory: this.newsHistory,
@@ -883,9 +802,10 @@ class GameEngine {
   // ─── State Getters ────────────────────────────────────────────────────────
 
   getPublicGameState() {
-    const roundScenario = ROUND_SCENARIOS[this.currentRound] || ROUND_SCENARIOS[1];
+    const roundScenario = getScenarioForRound(this.currentRound, this.maxRounds);
     const publicCompanies = Array.from(this.companies.values()).map(c => {
       const arch = c.archetype || (this.state === 'finished' ? this.classifyArchetype(c) : null);
+      const profile = arch ? (ARCHETYPE_PROFILES[arch] || ARCHETYPE_PROFILES.SobrevivienteMercado) : null;
       return {
         id: c.id,
         name: c.name,
@@ -897,6 +817,7 @@ class GameEngine {
         techLevel: c.techLevel,
         environmentalFootprint: c.environmentalFootprint,
         archetype: arch,
+        archetypeProfile: profile,
         compositeScore: this.calculateCompositeScore(c),
         hasDecided: this.roundDecisions.has(c.id),
       };
@@ -911,6 +832,7 @@ class GameEngine {
       globalWorld: this.globalWorld,
       companies: publicCompanies,
       rankings: this.finalRankings || (this.state === 'finished' ? publicCompanies : []),
+      archetypeProfiles: ARCHETYPE_PROFILES,
       decidedCount: this.roundDecisions.size,
       totalPlayers: this.companies.size,
       activeEmergency: this.activeEmergency,
@@ -925,7 +847,18 @@ class GameEngine {
   getCompanyState(playerId) {
     const company = this.companies.get(playerId);
     if (!company) return null;
-    return this._sanitizeCompanyForPlayer(company);
+    const sanitized = this._sanitizeCompanyForPlayer(company);
+    const arch = company.archetype || (this.state === 'finished' ? this.classifyArchetype(company) : null);
+    sanitized.archetype = arch;
+    sanitized.archetypeProfile = arch ? (ARCHETYPE_PROFILES[arch] || ARCHETYPE_PROFILES.SobrevivienteMercado) : null;
+    sanitized.compositeScore = this.calculateCompositeScore(company);
+
+    if (this.state === 'finished' && this.finalRankings) {
+      const idx = this.finalRankings.findIndex(r => r.id === playerId);
+      sanitized.finalRank = idx >= 0 ? idx + 1 : null;
+      sanitized.totalParticipants = this.finalRankings.length;
+    }
+    return sanitized;
   }
 
   getAdminState() {
